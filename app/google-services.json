@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "301275452209",
+    "project_id": "mypitch-7a08c",
+    "storage_bucket": "mypitch-7a08c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:301275452209:android:2f863de03e41263981d610",
+        "android_client_info": {
+          "package_name": "com.devapps.mypitch"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyClYaucegalyfxL0yXfcnLQF4VjkDigvjM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

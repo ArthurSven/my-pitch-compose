@@ -66,7 +66,7 @@ fun CategoryUiItem(category: String, isSelected: Boolean, onClick: () -> Unit) {
             text = category,
             fontSize = 16.sp,
             modifier = Modifier
-                .padding(15.dp)
+                .padding(16.dp)
         )
     }
 }

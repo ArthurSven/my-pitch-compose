@@ -57,7 +57,10 @@ import androidx.compose.ui.util.fastForEachIndexed
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.devapps.mypitch.ui.Messages
 import com.devapps.mypitch.ui.MyHome
+import com.devapps.mypitch.ui.MyPitches
+import com.devapps.mypitch.ui.Profile
 import com.devapps.mypitch.ui.theme.feintGrey
 import com.devapps.mypitch.ui.theme.teal
 import com.devapps.mypitch.ui.utils.BottomNavItem
@@ -78,23 +81,27 @@ fun MyPitchScreens() {
         BottomNavItem(
             title = "Home",
             selectedIcon = Icons.Filled.Home,
-            unselectedIcon = Icons.Outlined.Home
+            unselectedIcon = Icons.Outlined.Home,
+            route = MyHome.route
         ),
         BottomNavItem(
             title = "My pitch",
             selectedIcon = Icons.Filled.Lightbulb,
-            unselectedIcon = Icons.Outlined.Lightbulb
+            unselectedIcon = Icons.Outlined.Lightbulb,
+            route = MyPitches.route
         ),
         BottomNavItem(
             title = "Messages",
             selectedIcon = Icons.Filled.Email,
             unselectedIcon = Icons.Outlined.Email,
-            badgeCount = 0
+            badgeCount = 0,
+            route = Messages.route
         ),
         BottomNavItem(
             title = "Profile",
             selectedIcon = Icons.Filled.AccountCircle,
-            unselectedIcon = Icons.Outlined.AccountCircle
+            unselectedIcon = Icons.Outlined.AccountCircle,
+            route = Profile.route
         ),
     )
 
@@ -125,6 +132,10 @@ fun MyPitchScreens() {
                         selected = selectedItemIndex == index,
                         onClick = {
                             selectedItemIndex = index
+                            myPitchHomeNavController.navigate(item.route) {
+                                popUpTo(myPitchHomeNavController.graph.startDestinationId)
+                                launchSingleTop = true
+                            }
                         },
                         label = {
                             Text(text = item.title,
@@ -154,6 +165,9 @@ fun MyPitchScreens() {
       NavHost(myPitchHomeNavController, startDestination = MyHome.route, modifier = Modifier.padding(innerPadding)) {
             composable(MyHome.route) {
                 MyHomeScreen()
+            }
+            composable(MyPitches.route) {
+              MyPitchListScreen()
             }
       }
     }
@@ -231,6 +245,77 @@ fun MyHomeScreen() {
 
 }
 
+@Composable
+fun MyPitchListScreen() {
+
+    var search by rememberSaveable {
+        mutableStateOf("")
+    }
+    Surface(
+        color = Color.White
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp)
+                    .background(Color.White)
+            ) {
+                Spacer(modifier = Modifier
+                    .height(25.dp)
+                )
+                Text("My Pitches",
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text("Your recently posted pitches",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = Color.Gray
+                )
+                Spacer(modifier = Modifier
+                    .height(20.dp)
+                )
+                OutlinedTextField(
+                    value = search,
+                    onValueChange = {
+                        search == it
+                    },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Outlined.Search, contentDescription = "search", tint = Color.DarkGray
+                        )
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = feintGrey,
+                        unfocusedContainerColor = feintGrey,
+                        unfocusedTextColor = Color.Gray,
+                        focusedTextColor = Color.DarkGray,
+                        unfocusedBorderColor = Color.LightGray,
+                        focusedBorderColor = Color.LightGray
+                    ),
+                    shape = RoundedCornerShape(20.dp),
+                    placeholder = {
+                        Text("Search")
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
+                )
+                Spacer(modifier = Modifier
+                    .height(2.dp)
+                )
+            }
+            CategoryRow()
+        }
+
+    }
+
+}
 @Composable
 @Preview(showBackground = true)
 fun ViewProfileScreens() {

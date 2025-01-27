@@ -61,6 +61,7 @@ import com.devapps.mypitch.ui.MyHome
 import com.devapps.mypitch.ui.theme.feintGrey
 import com.devapps.mypitch.ui.theme.teal
 import com.devapps.mypitch.ui.utils.BottomNavItem
+import com.devapps.mypitch.ui.utils.CategoryRow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -152,7 +153,7 @@ fun MyPitchScreens() {
     ) { innerPadding ->
       NavHost(myPitchHomeNavController, startDestination = MyHome.route, modifier = Modifier.padding(innerPadding)) {
             composable(MyHome.route) {
-
+                MyHomeScreen()
             }
       }
     }
@@ -170,52 +171,62 @@ fun MyHomeScreen() {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(20.dp)
                 .background(Color.White)
         ) {
-            Spacer(modifier = Modifier
-                .height(40.dp)
-            )
-            Text("Discover",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Text("Potential projects and business partners",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Normal,
-                color = Color.Gray
-            )
-            Spacer(modifier = Modifier
-                .height(20.dp)
-            )
-            OutlinedTextField(
-                value = search,
-                onValueChange = {
-                    search == it
-                },
-                leadingIcon = {
-                    Icon(
-                        Icons.Outlined.Search, contentDescription = "search", tint = Color.DarkGray
-                    )
-                },
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = feintGrey,
-                    unfocusedContainerColor = feintGrey,
-                    unfocusedTextColor = Color.Gray,
-                    focusedTextColor = Color.DarkGray,
-                    unfocusedBorderColor = Color.LightGray,
-                    focusedBorderColor = Color.LightGray
-                ),
-                shape = RoundedCornerShape(20.dp),
-                placeholder = {
-                    Text("Search")
-                },
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp)
-            )
-
+                    .padding(20.dp)
+                    .background(Color.White)
+            ) {
+                Spacer(modifier = Modifier
+                    .height(25.dp)
+                )
+                Text("Discover",
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text("Potential projects and business partners",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = Color.Gray
+                )
+                Spacer(modifier = Modifier
+                    .height(20.dp)
+                )
+                OutlinedTextField(
+                    value = search,
+                    onValueChange = {
+                        search == it
+                    },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Outlined.Search, contentDescription = "search", tint = Color.DarkGray
+                        )
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = feintGrey,
+                        unfocusedContainerColor = feintGrey,
+                        unfocusedTextColor = Color.Gray,
+                        focusedTextColor = Color.DarkGray,
+                        unfocusedBorderColor = Color.LightGray,
+                        focusedBorderColor = Color.LightGray
+                    ),
+                    shape = RoundedCornerShape(20.dp),
+                    placeholder = {
+                        Text("Search")
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
+                )
+                Spacer(modifier = Modifier
+                    .height(2.dp)
+                )
+            }
+            CategoryRow()
         }
+
     }
 
 }
@@ -223,5 +234,5 @@ fun MyHomeScreen() {
 @Composable
 @Preview(showBackground = true)
 fun ViewProfileScreens() {
-    MyHomeScreen()
+    MyPitchScreens()
 }

@@ -54,9 +54,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEachIndexed
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.devapps.mypitch.data.model.UserData
 import com.devapps.mypitch.ui.Messages
 import com.devapps.mypitch.ui.MyHome
 import com.devapps.mypitch.ui.MyPitches
@@ -68,7 +70,11 @@ import com.devapps.mypitch.ui.utils.CategoryRow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyPitchScreens() {
+fun MyPitchScreens(
+    myPitchNavController: NavController,
+    userData: UserData?,
+    onSignOut: () -> Unit
+) {
 
     val myPitchHomeNavController = rememberNavController()
 
@@ -319,5 +325,5 @@ fun MyPitchListScreen() {
 @Composable
 @Preview(showBackground = true)
 fun ViewProfileScreens() {
-    MyPitchScreens()
+
 }

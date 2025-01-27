@@ -13,6 +13,14 @@ object Start : ScreenDestination {
     override val route = "start_screen"
 }
 
+object Signup : ScreenDestination {
+    override val route = "sign_in_screen"
+}
+
+object Signout : ScreenDestination {
+    override val route = "sign_out"
+}
+
 object MyHome : ScreenDestination {
     override val route = "home_screen"
 }

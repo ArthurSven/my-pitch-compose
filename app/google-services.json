@@ -12,7 +12,20 @@
           "package_name": "com.devapps.mypitch"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "301275452209-pq05t6nfmvqm889j12hjcvtelqtknjp9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.devapps.mypitch",
+            "certificate_hash": "3377a9deaa00f6865e0b6d372d7bbb6ec00763de"
+          }
+        },
+        {
+          "client_id": "301275452209-qj6gl2pjq91pn6pigllst22bnbrhuvt4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyClYaucegalyfxL0yXfcnLQF4VjkDigvjM"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "301275452209-qj6gl2pjq91pn6pigllst22bnbrhuvt4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

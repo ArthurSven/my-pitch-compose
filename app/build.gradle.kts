@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -72,6 +73,9 @@ dependencies {
 
     //navigation
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.firebase.common.ktx)
+    implementation(libs.play.services.auth)
+    implementation(libs.firebase.auth.ktx)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

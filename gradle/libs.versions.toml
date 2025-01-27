@@ -12,6 +12,18 @@ koin-bom = "4.0.1"
 materialIconsExtended = "1.7.6"
 constraintLayout = "1.1.0"
 navigationCompose = "2.8.5"
+kotlinKsp = "1.9.0-1.0.13"
+playServicesAuth = "20.5.0"
+playServicesAuthVersion = "21.2.0"
+playServicesBase = "18.5.0"
+googleGmsGoogleServices = "4.4.2"
+firebaseAuth = "23.0.0"
+firebase-bom = "33.1.2"
+org-jetbrains-kotlin-android = "1.8.0"
+firebaseCommonKtx = "21.0.0"
+googlePlayServicesAuth = "21.3.0"
+firebaseAuthKtx = "23.1.0"
+
 
 
 [libraries]
@@ -43,7 +55,19 @@ androidx-material-icons-extended = { module = "androidx.compose.material:materia
 #constraint layout dependency
 androidx-constraint = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintLayout"}
 
+#Playstore
+play-services-auth-v2120 = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuthVersion" }
+play-services-base = { module = "com.google.android.gms:play-services-base", version.ref = "playServicesBase" }
+
+#Firebase
+firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
+firebase-common-ktx = { group = "com.google.firebase", name = "firebase-common-ktx", version.ref = "firebaseCommonKtx" }
+play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "googlePlayServicesAuth" }
+firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServices" }
+jetbrains-kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "org-jetbrains-kotlin-android" }
 

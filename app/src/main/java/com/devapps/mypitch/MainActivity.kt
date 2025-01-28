@@ -39,7 +39,7 @@ import org.koin.androidx.compose.koinViewModel
         enableEdgeToEdge()
         setContent {
             MyPitchTheme {
-
+                MainMyPitchNavigation()
             }
         }
     }

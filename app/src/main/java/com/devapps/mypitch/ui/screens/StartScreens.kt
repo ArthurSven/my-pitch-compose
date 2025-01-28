@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Text
@@ -46,6 +47,7 @@ import com.devapps.mypitch.ui.viewmodels.AuthViewModel
 import com.google.android.gms.auth.api.identity.Identity
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -53,7 +55,10 @@ fun SignupScreen(myPitchNavController: NavController) {
 
     val context = LocalContext.current.applicationContext
     val coroutineScope = rememberCoroutineScope()
-    val authViewModel: AuthViewModel = koinViewModel()
+
+    // Retrieve AuthViewModel with the context parameter
+    val authViewModel: AuthViewModel = koinViewModel(parameters = { parametersOf(context) })
+
     val state by authViewModel.state.collectAsStateWithLifecycle()
 
     val googleAuthClient by lazy {
@@ -122,7 +127,10 @@ fun SignupScreen(myPitchNavController: NavController) {
                 modifier = Modifier
                     .weight(0.4f)
                     .fillMaxWidth(),
-                shape = RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp)
+                shape = RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp),
+                colors = CardDefaults.elevatedCardColors(
+                    containerColor = Color.White
+                )
             ) {
                 Column(
                     modifier = Modifier

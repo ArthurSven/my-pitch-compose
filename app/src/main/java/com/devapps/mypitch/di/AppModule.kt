@@ -15,18 +15,18 @@ val appModule = module {
         com.google.android.gms.auth.api.identity.Identity.getSignInClient(androidContext())
     }
 
-    // Provide the GoogleAuthClient
-    factory { (context: Context) ->
+    // Provide GoogleAuthClient with a dynamic Context
+    single {
         GoogleAuthClient(
-            context = context,
-            oneTapClient = get() // This will retrieve the SignInClient from the Koin container
+            context = androidContext(),
+            oneTapClient = get() // Retrieve the SignInClient from the Koin container
         )
     }
 
-    // Provide the AuthViewModel
-    viewModel { (context: Context) ->
+    // Provide AuthViewModel with a dynamic Context
+    viewModel {
         AuthViewModel(
-            googleAuthClient = get { parametersOf(context) } // Pass the context to create GoogleAuthClient
+            googleAuthClient = get()// Pass the context to GoogleAuthClient
         )
     }
 }

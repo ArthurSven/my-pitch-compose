@@ -76,6 +76,13 @@ dependencies {
     implementation(libs.firebase.common.ktx)
     implementation(libs.play.services.auth)
     implementation(libs.firebase.auth.ktx)
+    implementation(libs.volley)
+    implementation(libs.play.services.fido)
+    implementation(libs.androidx.runner)
+
+    //coil
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

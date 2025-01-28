@@ -84,6 +84,14 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
 
+    //retrofit
+    implementation(libs.com.squareup.retrofit2.retrofit2)
+    implementation(libs.converter.gson)
+    implementation(libs.logging.interceptor)
+
+    //supabase
+    implementation(libs.postgrest.kt)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

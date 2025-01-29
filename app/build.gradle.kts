@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.google.gms.google.services)
+    kotlin("plugin.serialization") version "1.9.0"
 }
 
 android {
@@ -90,7 +91,10 @@ dependencies {
     implementation(libs.logging.interceptor)
 
     //supabase
+    implementation(libs.supabase.kt)
     implementation(libs.postgrest.kt)
+    //ktor
+    implementation(libs.ktor.client.android)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

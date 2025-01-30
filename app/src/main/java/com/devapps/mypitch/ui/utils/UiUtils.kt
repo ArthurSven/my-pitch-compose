@@ -9,3 +9,10 @@ data class BottomNavItem(
     val route : String,
     val badgeCount: Int? = null
 )
+
+val categoryList = listOf<String>("All", "Agriculture", "Art & Design", "Business", "Education",
+    "Entertainment", "Fashion", "Food & Beverage", "Manufacturing", "Real estate", "Retail",
+    "Tourism", "Misc"
+)
+
+val messageArray = listOf("All messages", "Unread", "read")

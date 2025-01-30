@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -80,6 +81,9 @@ import com.devapps.mypitch.ui.theme.feintGrey
 import com.devapps.mypitch.ui.theme.teal
 import com.devapps.mypitch.ui.utils.BottomNavItem
 import com.devapps.mypitch.ui.utils.CategoryRow
+import com.devapps.mypitch.ui.utils.MyMessageInboxList
+import com.devapps.mypitch.ui.utils.categoryList
+import com.devapps.mypitch.ui.utils.messageArray
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -288,6 +292,9 @@ fun MyPitchScreens(
             composable(MyPitches.route) {
               MyPitchListScreen()
             }
+          composable(Messages.route) {
+              MyPitchMessageScreen()
+          }
       }
     }
 }
@@ -359,7 +366,7 @@ fun MyHomeScreen() {
                     .height(2.dp)
                 )
             }
-            CategoryRow()
+            CategoryRow(categoryList)
         }
 
     }
@@ -433,14 +440,89 @@ fun MyPitchListScreen() {
                     .height(2.dp)
                 )
             }
-            CategoryRow()
+            CategoryRow(categoryList)
         }
 
     }
 
 }
+
+@Composable
+fun MyPitchMessageScreen() {
+
+    var search by rememberSaveable {
+        mutableStateOf("")
+    }
+    Surface(
+        color = Color.White
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp)
+                    .background(Color.White)
+            ) {
+                Spacer(modifier = Modifier
+                    .height(20.dp)
+                )
+                Text("Inbox",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+                Spacer(modifier = Modifier
+                    .height(20.dp)
+                )
+                OutlinedTextField(
+                    value = search,
+                    onValueChange = {
+                        search == it
+                    },
+                    trailingIcon = {
+                        Icon(
+                            Icons.Outlined.Search, contentDescription = "search", tint = Color.DarkGray
+                        )
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = feintGrey,
+                        unfocusedContainerColor = feintGrey,
+                        unfocusedTextColor = Color.Gray,
+                        focusedTextColor = Color.DarkGray,
+                        unfocusedBorderColor = Color.LightGray,
+                        focusedBorderColor = Color.LightGray
+                    ),
+                    shape = RoundedCornerShape(20.dp),
+                    placeholder = {
+                        Text("Search",
+                            fontSize = 10.sp)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp)
+                )
+                Spacer(modifier = Modifier
+                    .height(2.dp)
+                )
+            }
+            CategoryRow(messageArray)
+            Spacer(modifier = Modifier
+                .height(10.dp)
+            )
+            MyMessageInboxList()
+        }
+
+    }
+
+}
+
+
 @Composable
 @Preview(showBackground = true)
 fun ViewProfileScreens() {
-
+    MyPitchMessageScreen()
 }

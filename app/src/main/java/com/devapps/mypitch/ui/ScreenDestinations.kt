@@ -29,6 +29,10 @@ object MyPitches : ScreenDestination {
     override val route = "my_pitches_screen"
 }
 
+object CreatePitch : ScreenDestination {
+    override val route = "create_pitch_screen"
+}
+
 object Messages : ScreenDestination {
     override val route = "messages_screen"
 }

@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,8 +15,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Email
@@ -23,12 +26,15 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material.icons.outlined.Create
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material.icons.outlined.Logout
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -39,6 +45,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -58,6 +65,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -72,6 +80,7 @@ import coil3.request.allowHardware
 import coil3.request.bitmapConfig
 import com.devapps.mypitch.R
 import com.devapps.mypitch.data.model.UserData
+import com.devapps.mypitch.ui.CreatePitch
 import com.devapps.mypitch.ui.Messages
 import com.devapps.mypitch.ui.MyHome
 import com.devapps.mypitch.ui.MyPitches
@@ -79,10 +88,14 @@ import com.devapps.mypitch.ui.Profile
 import com.devapps.mypitch.ui.Signout
 import com.devapps.mypitch.ui.theme.feintGrey
 import com.devapps.mypitch.ui.theme.teal
+import com.devapps.mypitch.ui.theme.textGrey
 import com.devapps.mypitch.ui.utils.BottomNavItem
+import com.devapps.mypitch.ui.utils.CategoryDropdown
 import com.devapps.mypitch.ui.utils.CategoryRow
 import com.devapps.mypitch.ui.utils.MyMessageInboxList
+import com.devapps.mypitch.ui.utils.StretchableOutlinedTextField
 import com.devapps.mypitch.ui.utils.categoryList
+import com.devapps.mypitch.ui.utils.formCategoryList
 import com.devapps.mypitch.ui.utils.messageArray
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -283,6 +296,15 @@ fun MyPitchScreens(
                     )
                 }
             }
+        },
+        floatingActionButton = {
+            SmallFloatingActionButton(
+                onClick = { myPitchHomeNavController.navigate(CreatePitch.route) },
+                containerColor = teal,
+                contentColor = Color.Black
+            ) {
+                Icon(Icons.Outlined.Create, "Create pitch")
+            }
         }
     ) { innerPadding ->
       NavHost(myPitchHomeNavController, startDestination = MyHome.route, modifier = Modifier.padding(innerPadding)) {
@@ -294,6 +316,9 @@ fun MyPitchScreens(
             }
           composable(Messages.route) {
               MyPitchMessageScreen()
+          }
+          composable(CreatePitch.route) {
+              CreateMyPitch()
           }
       }
     }
@@ -320,7 +345,7 @@ fun MyHomeScreen() {
                     .background(Color.White)
             ) {
                 Spacer(modifier = Modifier
-                    .height(20.dp)
+                    .height(10.dp)
                 )
                 Text("Discover",
                     fontSize = 24.sp,
@@ -394,7 +419,7 @@ fun MyPitchListScreen() {
                     .background(Color.White)
             ) {
                 Spacer(modifier = Modifier
-                    .height(20.dp)
+                    .height(10.dp)
                 )
                 Text("My Pitches",
                     fontSize = 24.sp,
@@ -468,7 +493,7 @@ fun MyPitchMessageScreen() {
                     .background(Color.White)
             ) {
                 Spacer(modifier = Modifier
-                    .height(20.dp)
+                    .height(10.dp)
                 )
                 Text("Inbox",
                     fontSize = 24.sp,
@@ -503,7 +528,7 @@ fun MyPitchMessageScreen() {
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(60.dp)
+                        .height(40.dp)
                 )
                 Spacer(modifier = Modifier
                     .height(2.dp)
@@ -520,9 +545,122 @@ fun MyPitchMessageScreen() {
 
 }
 
+@Composable
+fun CreateMyPitch() {
+
+    var pitchName by rememberSaveable {
+        mutableStateOf("")
+    }
+    var pitchCategory by rememberSaveable {
+        mutableStateOf("")
+    }
+    var description by rememberSaveable {
+        mutableStateOf("")
+    }
+
+    Surface(
+        color = Color.White
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White)
+                .padding(20.dp)
+                .verticalScroll(rememberScrollState())
+        ) {
+            Spacer(modifier = Modifier
+                .height(10.dp)
+            )
+            Text("Create Pitch",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+            Spacer(modifier = Modifier
+                .height(20.dp)
+            )
+            Text("Here you can give an overview of the pitch you would like to present on " +
+                    "this app.",
+                fontSize = 16.sp,
+                color = textGrey,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+            Spacer(modifier = Modifier
+                .height(30.dp)
+            )
+            OutlinedTextField(
+                value = pitchName
+                , onValueChange = {
+                    pitchName == it
+                },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = teal,
+                    focusedLabelColor = teal,
+                    focusedTextColor = Color.Black,
+                    cursorColor = Color.Black
+                ),
+                placeholder = {
+                    Text(text = "Pitch title")
+                },
+                label = {
+                    Text(text = "Pitch title")
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+            Spacer(modifier = Modifier
+                .height(10.dp)
+            )
+                CategoryDropdown(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    categoryList = formCategoryList,
+                    selectedCategory = pitchCategory,
+                    onCategorySelected = { pitchCategory = it }
+                )
+            
+            Spacer(modifier = Modifier
+                .height(30.dp)
+            )
+            StretchableOutlinedTextField(
+                description,
+                onValueChange = {
+                    description == it
+                },
+                placeholder = "Describe your pitch",
+                minLines = 10,
+                maxLines = 50
+            )
+            Spacer(modifier = Modifier
+                .height(20.dp)
+            )
+            Button(
+                onClick = { /*TODO*/ },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = teal,
+                contentColor = Color.White
+            ),
+                shape = RoundedCornerShape(0.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(55.dp)) {
+                Text("Post Pitch",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
+                )
+            }
+        }
+    }
+}
+
 
 @Composable
 @Preview(showBackground = true)
 fun ViewProfileScreens() {
-    MyPitchMessageScreen()
+    CreateMyPitch()
 }

@@ -259,7 +259,12 @@ fun CategoryDropdown(
 }
 
 @Composable
+fun PitchItem() {
+
+}
+
+@Composable
 @Preview(showBackground = true)
 fun PreviewUiUtilities() {
-    MyMessageInboxItem()
+    PitchItem()
 }

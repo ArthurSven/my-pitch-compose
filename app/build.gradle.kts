@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.google.gms.google.services)
+    alias(libs.plugins.compose.compiler)
     kotlin("plugin.serialization") version "1.9.0"
 }
 
@@ -63,6 +64,10 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
+    //viewmodel lifecycle
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+
     //koin dependency
     implementation(project.dependencies.platform(libs.koin.bom))
     implementation(libs.koin.core)
@@ -95,6 +100,9 @@ dependencies {
     implementation(libs.postgrest.kt)
     //ktor
     implementation(libs.ktor.client.android)
+
+    //serializable
+    implementation(libs.kotlinx.serialization.core)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

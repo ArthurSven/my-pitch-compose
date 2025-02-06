@@ -1,7 +1,10 @@
 package com.devapps.mypitch.ui.utils
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -15,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -26,11 +30,14 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,12 +48,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.devapps.mypitch.data.model.Pitch
+import com.devapps.mypitch.data.model.PitchResponse
 import com.devapps.mypitch.data.model.UserData
 import com.devapps.mypitch.ui.theme.feintGrey
 import com.devapps.mypitch.ui.theme.teal
+import com.devapps.mypitch.ui.theme.textGrey
+import com.devapps.mypitch.ui.viewmodels.PitchViewModel
 
 @Composable
 fun CategoryRow(itemList: List<String>) {
@@ -259,12 +272,117 @@ fun CategoryDropdown(
 }
 
 @Composable
-fun PitchItem() {
-
+fun PitchItem(pitch: PitchResponse) {
+    OutlinedCard(
+        onClick = { /*TODO*/ },
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(195.dp),
+        colors = CardDefaults.outlinedCardColors(
+            containerColor = Color.White
+        ),
+        border = BorderStroke(3.dp, teal),
+        shape = RoundedCornerShape(15.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp)
+        ) {
+            Text(pitch.category,
+                color = textGrey,
+                fontSize = 14.sp,
+                modifier = Modifier
+                    .fillMaxWidth(),
+                textAlign = TextAlign.Justify
+            )
+            Spacer(modifier = Modifier
+                .height(7.dp)
+            )
+            Text(pitch.pitchname,
+                color = teal,
+                fontWeight = FontWeight.Bold,
+                fontSize = 24.sp,
+                modifier = Modifier
+                    .fillMaxWidth(),
+                textAlign = TextAlign.Justify
+            )
+            Spacer(modifier = Modifier
+                .height(5.dp)
+            )
+            Text(pitch.description,
+                color = textGrey,
+                fontSize = 14.sp,
+                modifier = Modifier
+                    .fillMaxWidth(),
+                textAlign = TextAlign.Justify,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+            Spacer(modifier = Modifier
+                .height(8.dp)
+            )
+            Text("By " + pitch.username,
+                color = textGrey,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .fillMaxWidth(),
+                textAlign = TextAlign.End
+            )
+        }
+    }
 }
+
+@Composable
+fun PitchList(pitchViewModel: PitchViewModel) {
+    val pitches by pitchViewModel.pitches.collectAsState()
+    val isLoading by pitchViewModel.isLoading.collectAsState()
+
+    LaunchedEffect(Unit) {
+        pitchViewModel.getPitches() // Fetch pitches when screen loads
+    }
+
+    if (isLoading) {
+        // Show Loading Placeholder
+        repeat(5) {
+            LoadingPitchItem()
+            Spacer(modifier = Modifier.height(10.dp))
+        }
+    } else {
+        LazyColumn {
+            items(pitches) { pitch ->
+                PitchItem(pitch)
+                Spacer(modifier = Modifier.height(10.dp))
+            }
+        }
+    }
+}
+
+@Composable
+fun LoadingPitchItem() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp)
+            .clip(RoundedCornerShape(15.dp))
+            .background(Color.LightGray.copy(alpha = 0.5f))
+    )
+}
+
 
 @Composable
 @Preview(showBackground = true)
 fun PreviewUiUtilities() {
-    PitchItem()
+
+    val pitch = PitchResponse(
+        "oooohooo",
+        "Goose farming",
+        "Agriculture",
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+        "sgdgfgdg",
+        "Artska",
+        "arthursven@gmail.com"
+    )
+    PitchItem(pitch)
 }

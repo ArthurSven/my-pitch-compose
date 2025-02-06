@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.devapps.mypitch.data.model.Pitch
+import com.devapps.mypitch.data.model.PitchResponse
 import com.devapps.mypitch.data.model.UserData
 import com.devapps.mypitch.data.repository.PitchRepository
 import com.devapps.mypitch.ui.utils.state.CreatePitchUiState
@@ -26,8 +27,11 @@ class PitchViewModel(
     private val _uiState = MutableStateFlow<CreatePitchUiState>(CreatePitchUiState.Idle)
     val uiState: StateFlow<CreatePitchUiState> = _uiState.asStateFlow()
 
-    private val _pitches = MutableStateFlow<List<Pitch>>(emptyList())
-    val pitches : StateFlow<List<Pitch>> = _pitches.asStateFlow()
+    private val _pitches = MutableStateFlow<List<PitchResponse>>(emptyList())
+    val pitches : StateFlow<List<PitchResponse>> = _pitches.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
 
     var pitchName by mutableStateOf("")
@@ -80,10 +84,13 @@ class PitchViewModel(
 
     suspend fun getPitches() {
         try {
+            _isLoading.value = true
             val fetchedPitches = pitchRepository.getPitches()
             _pitches.value = fetchedPitches
         } catch (e: Exception) {
             _uiState.value = CreatePitchUiState.Error("Error fetching pitches: ${e.message}")
+        } finally {
+            _isLoading.value = false
         }
     }
 }

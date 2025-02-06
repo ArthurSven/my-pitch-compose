@@ -99,6 +99,7 @@ import com.devapps.mypitch.ui.utils.BottomNavItem
 import com.devapps.mypitch.ui.utils.CategoryDropdown
 import com.devapps.mypitch.ui.utils.CategoryRow
 import com.devapps.mypitch.ui.utils.MyMessageInboxList
+import com.devapps.mypitch.ui.utils.PitchList
 import com.devapps.mypitch.ui.utils.StretchableOutlinedTextField
 import com.devapps.mypitch.ui.utils.categoryList
 import com.devapps.mypitch.ui.utils.formCategoryList
@@ -321,7 +322,7 @@ fun MyPitchScreens(
     ) { innerPadding ->
       NavHost(myPitchHomeNavController, startDestination = MyHome.route, modifier = Modifier.padding(innerPadding)) {
             composable(MyHome.route) {
-                MyHomeScreen()
+                MyHomeScreen(userData)
             }
             composable(MyPitches.route) {
               MyPitchListScreen()
@@ -337,11 +338,15 @@ fun MyPitchScreens(
 }
 
 @Composable
-fun MyHomeScreen() {
+fun MyHomeScreen(userData: UserData?) {
 
     var search by rememberSaveable {
         mutableStateOf("")
     }
+    val pitchViewModel: PitchViewModel = koinViewModel { parametersOf(userData) }
+    val uiState by pitchViewModel.uiState.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current.applicationContext
     Surface(
         color = Color.White
     ) {
@@ -404,6 +409,19 @@ fun MyHomeScreen() {
                 )
             }
             CategoryRow(categoryList)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp)
+                    .background(Color.White)
+            ) {
+                Spacer(
+                    modifier = Modifier
+                        .height(10.dp)
+                )
+                PitchList(pitchViewModel)
+            }
+
         }
 
     }
@@ -478,6 +496,7 @@ fun MyPitchListScreen() {
                 )
             }
             CategoryRow(categoryList)
+
         }
 
     }

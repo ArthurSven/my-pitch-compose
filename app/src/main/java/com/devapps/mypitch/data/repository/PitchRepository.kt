@@ -1,6 +1,7 @@
 package com.devapps.mypitch.data.repository
 
 import com.devapps.mypitch.data.model.Pitch
+import com.devapps.mypitch.data.model.PitchResponse
 import com.devapps.mypitch.ui.utils.state.Response
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.exceptions.SupabaseEncodingException
@@ -10,7 +11,7 @@ interface PitchRepository {
 
     suspend fun createPitch(pitch: Pitch) : Response
 
-    suspend fun getPitches() : List<Pitch>
+    suspend fun getPitches() : List<PitchResponse>
 }
 
 class SupabaseRepository(private val supabaseClient: SupabaseClient) : PitchRepository {
@@ -27,11 +28,11 @@ class SupabaseRepository(private val supabaseClient: SupabaseClient) : PitchRepo
         }
     }
 
-    override suspend fun getPitches(): List<Pitch> {
+    override suspend fun getPitches(): List<PitchResponse> {
         return try {
             val response = supabaseClient.postgrest["pitch"]
                 .select()
-                .decodeList<Pitch>()  // Decodes the result into a list of Pitch objects
+                .decodeList<PitchResponse>()  // Decodes the result into a list of Pitch objects
             response
         } catch (e: SupabaseEncodingException) {
             emptyList()  // Return an empty list in case of decoding errors

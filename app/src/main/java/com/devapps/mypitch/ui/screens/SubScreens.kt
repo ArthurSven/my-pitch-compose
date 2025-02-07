@@ -1,5 +1,9 @@
 package com.devapps.mypitch.ui.screens
 
+import android.content.Intent
+import android.net.Uri
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.scrollable
@@ -37,11 +41,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavController
 import com.devapps.mypitch.R
 import com.devapps.mypitch.ui.MyHome
@@ -59,7 +66,7 @@ fun ReadPitchScreen(
 
     // Observe the pitch state
     val pitchState by pitchViewModel.pitch.collectAsState()
-
+    val context = LocalContext.current
     // Fetch the pitch details when the screen is launched or when pitchid changes
     LaunchedEffect(pitchid) {
         pitchViewModel.getPitchById(pitchid)
@@ -162,6 +169,23 @@ fun ReadPitchScreen(
                         Button(
                             onClick = {
                                 // Handle email pitcher button click
+                                val subject = Uri.encode(pitch.pitchname) // Encode the subject
+                                val body = Uri.encode("Dear ${pitch.username},\n\n") // Encode the body
+
+                                val uri = Uri.parse("mailto:${pitch.email}?subject=$subject&body=$body")
+
+                                val intent = Intent(Intent.ACTION_SENDTO).apply {
+                                    data = uri
+                                }
+
+                                try {
+
+                                    ContextCompat.startActivity(context, Intent.createChooser(intent, "Choose an email client"), null)
+                                } catch (e: Exception) {
+                                    Log.e("Msg", e.message.toString())
+                                    Toast.makeText(context, "No email app found",
+                                        Toast.LENGTH_LONG).show()
+                                }
                             },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = teal,

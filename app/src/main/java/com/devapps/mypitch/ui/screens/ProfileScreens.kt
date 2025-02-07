@@ -77,9 +77,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.navigation.NavController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.allowHardware
@@ -87,10 +89,9 @@ import coil3.request.bitmapConfig
 import com.devapps.mypitch.R
 import com.devapps.mypitch.data.model.UserData
 import com.devapps.mypitch.ui.CreatePitch
-import com.devapps.mypitch.ui.Messages
 import com.devapps.mypitch.ui.MyHome
 import com.devapps.mypitch.ui.MyPitches
-import com.devapps.mypitch.ui.Profile
+import com.devapps.mypitch.ui.ReadPitch
 import com.devapps.mypitch.ui.Signout
 import com.devapps.mypitch.ui.theme.feintGrey
 import com.devapps.mypitch.ui.theme.teal
@@ -106,7 +107,6 @@ import com.devapps.mypitch.ui.utils.formCategoryList
 import com.devapps.mypitch.ui.utils.messageArray
 import com.devapps.mypitch.ui.utils.state.CreatePitchUiState
 import com.devapps.mypitch.ui.viewmodels.PitchViewModel
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -120,6 +120,7 @@ fun MyPitchScreens(
 ) {
 
     val myPitchHomeNavController = rememberNavController()
+    val pitchViewModel: PitchViewModel = koinViewModel { parametersOf(userData) }
     val context = LocalContext.current.applicationContext
     val showMenu = remember { mutableStateOf(false) }
     var selectedItemIndex by rememberSaveable {
@@ -139,19 +140,6 @@ fun MyPitchScreens(
             unselectedIcon = Icons.Outlined.Lightbulb,
             route = MyPitches.route
         ),
-        BottomNavItem(
-            title = "Messages",
-            selectedIcon = Icons.Filled.Email,
-            unselectedIcon = Icons.Outlined.Email,
-            badgeCount = 0,
-            route = Messages.route
-        ),
-//        BottomNavItem(
-//            title = "Profile",
-//            selectedIcon = Icons.Filled.AccountCircle,
-//            unselectedIcon = Icons.Outlined.AccountCircle,
-//            route = Profile.route
-//        ),
     )
 
     Scaffold(
@@ -322,23 +310,37 @@ fun MyPitchScreens(
     ) { innerPadding ->
       NavHost(myPitchHomeNavController, startDestination = MyHome.route, modifier = Modifier.padding(innerPadding)) {
             composable(MyHome.route) {
-                MyHomeScreen(userData)
+                MyHomeScreen(userData,myPitchHomeNavController)
             }
             composable(MyPitches.route) {
               MyPitchListScreen()
             }
-          composable(Messages.route) {
-              MyPitchMessageScreen()
-          }
           composable(CreatePitch.route) {
               CreateMyPitch(userData)
+          }
+          composable(ReadPitch.route+"/{pitchid}",
+              arguments = listOf(navArgument("pitchid") { type = NavType.StringType }))
+          { backStackEntry ->
+                  val pitchid = backStackEntry.arguments?.getString("pitchid")
+              if (pitchid != null) {
+                  ReadPitchScreen(
+                      pitchViewModel,
+                      pitchid, // Pass the pitchid here
+                      myPitchHomeNavController
+                  )
+              } else {
+                  // Handle the case where pitchid is null, e.g., show an error message or navigate back
+                  Text("Error: Pitch ID is missing") // Placeholder error message
+              }
           }
       }
     }
 }
 
 @Composable
-fun MyHomeScreen(userData: UserData?) {
+fun MyHomeScreen(
+    userData: UserData?,
+    myPitchHomeNavController: NavController) {
 
     var search by rememberSaveable {
         mutableStateOf("")
@@ -419,7 +421,7 @@ fun MyHomeScreen(userData: UserData?) {
                     modifier = Modifier
                         .height(10.dp)
                 )
-                PitchList(pitchViewModel)
+                PitchList(pitchViewModel, myPitchHomeNavController)
             }
 
         }
@@ -719,6 +721,7 @@ fun CreateMyPitch(userData: UserData?) {
                 }
 
                 CreatePitchUiState.Idle -> {} // Handle idle state
+                else -> {}
             }
         }
     }

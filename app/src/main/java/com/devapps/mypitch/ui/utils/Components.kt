@@ -53,9 +53,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.devapps.mypitch.data.model.Pitch
 import com.devapps.mypitch.data.model.PitchResponse
 import com.devapps.mypitch.data.model.UserData
+import com.devapps.mypitch.ui.ReadPitch
 import com.devapps.mypitch.ui.theme.feintGrey
 import com.devapps.mypitch.ui.theme.teal
 import com.devapps.mypitch.ui.theme.textGrey
@@ -272,9 +274,14 @@ fun CategoryDropdown(
 }
 
 @Composable
-fun PitchItem(pitch: PitchResponse) {
+fun PitchItem(
+    pitch: PitchResponse,
+    myPitchHomeNavController: NavController
+) {
     OutlinedCard(
-        onClick = { /*TODO*/ },
+        onClick = {
+            myPitchHomeNavController.navigate(ReadPitch.route + "/${pitch.pitchid}")
+        },
         modifier = Modifier
             .fillMaxWidth()
             .height(195.dp),
@@ -335,7 +342,10 @@ fun PitchItem(pitch: PitchResponse) {
 }
 
 @Composable
-fun PitchList(pitchViewModel: PitchViewModel) {
+fun PitchList(
+    pitchViewModel: PitchViewModel,
+    myPitchHomeNavController: NavController) {
+
     val pitches by pitchViewModel.pitches.collectAsState()
     val isLoading by pitchViewModel.isLoading.collectAsState()
 
@@ -352,7 +362,7 @@ fun PitchList(pitchViewModel: PitchViewModel) {
     } else {
         LazyColumn {
             items(pitches) { pitch ->
-                PitchItem(pitch)
+                PitchItem(pitch, myPitchHomeNavController)
                 Spacer(modifier = Modifier.height(10.dp))
             }
         }
@@ -375,14 +385,4 @@ fun LoadingPitchItem() {
 @Preview(showBackground = true)
 fun PreviewUiUtilities() {
 
-    val pitch = PitchResponse(
-        "oooohooo",
-        "Goose farming",
-        "Agriculture",
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-        "sgdgfgdg",
-        "Artska",
-        "arthursven@gmail.com"
-    )
-    PitchItem(pitch)
 }

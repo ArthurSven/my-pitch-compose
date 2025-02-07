@@ -9,6 +9,7 @@ import com.devapps.mypitch.data.model.PitchResponse
 import com.devapps.mypitch.data.model.UserData
 import com.devapps.mypitch.data.repository.PitchRepository
 import com.devapps.mypitch.ui.utils.state.CreatePitchUiState
+import com.devapps.mypitch.ui.utils.state.GetPitchByIdUiState
 import com.devapps.mypitch.ui.utils.state.Response
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,6 +33,10 @@ class PitchViewModel(
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+    private val _pitch = MutableStateFlow<GetPitchByIdUiState>(GetPitchByIdUiState.Idle)
+    val pitch: StateFlow<GetPitchByIdUiState> = _pitch
+
 
 
     var pitchName by mutableStateOf("")
@@ -91,6 +96,18 @@ class PitchViewModel(
             _uiState.value = CreatePitchUiState.Error("Error fetching pitches: ${e.message}")
         } finally {
             _isLoading.value = false
+        }
+    }
+
+    suspend fun getPitchById(pitchid: String) {
+        _pitch.value = GetPitchByIdUiState.Loading // Set state to Loading
+        try {
+            // Fetch the pitch from the repository
+            val pitch = pitchRepository.getPitchById(pitchid)
+            _pitch.value = GetPitchByIdUiState.Success(pitch) // Set state to Success
+        } catch (e: Exception) {
+            // Handle errors and set state to Error
+            _pitch.value = GetPitchByIdUiState.Error("Failed to fetch pitch: ${e.message}")
         }
     }
 }

@@ -92,13 +92,14 @@ fun ReadPitchScreen(
             val pitch = (pitchState as GetPitchByIdUiState.Success).pitch
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxSize()
                     .background(Color.White)
+                    .verticalScroll(rememberScrollState())
             ) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(0.5f)
+                        .height(400.dp)
                 ) {
                     Image(
                         painter = painterResource(R.drawable.business), // Replace with your image resource
@@ -135,75 +136,62 @@ fun ReadPitchScreen(
                         )
                     }
                 }
-
-                Card(
-                    onClick = { /*TODO*/ },
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(0.5f)
-                        .offset(y = (-30).dp), // Adjust this value to control the overlap
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color.White
-                    ),
-                    shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp) // Rounded corners only at the top
+                        .padding(20.dp)
                 ) {
-                    Column(
+                    Spacer(modifier = Modifier.height(30.dp))
+                    Text(
+                        text = pitch.description,
+                        fontSize = 16.sp,
+                        color = Color.Black
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "By: " + pitch.username,
+                        fontSize = 16.sp,
+                        color = Color.Black
+                    )
+                    Spacer(modifier = Modifier.height(30.dp))
+                    Button(
+                        onClick = {
+                            // Handle email pitcher button click
+                            val subject = Uri.encode(pitch.pitchname) // Encode the subject
+                            val body = Uri.encode("Dear ${pitch.username},\n\n") // Encode the body
+
+                            val uri = Uri.parse("mailto:${pitch.email}?subject=$subject&body=$body")
+
+                            val intent = Intent(Intent.ACTION_SENDTO).apply {
+                                data = uri
+                            }
+
+                            try {
+                                ContextCompat.startActivity(context, Intent.createChooser(intent, "Choose an email client"), null)
+                            } catch (e: Exception) {
+                                Log.e("Msg", e.message.toString())
+                                Toast.makeText(context, "No email app found",
+                                    Toast.LENGTH_LONG).show()
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = teal,
+                            contentColor = Color.White
+                        ),
+                        shape = RoundedCornerShape(0.dp),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(20.dp)
-                            .verticalScroll(rememberScrollState())
+                            .height(55.dp)
                     ) {
-                        Spacer(modifier = Modifier.height(10.dp))
                         Text(
-                            text = pitch.description,
-                            fontSize = 16.sp,
-                            color = Color.Black
+                            "Email Pitcher",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "By: " + pitch.username,
-                            fontSize = 16.sp,
-                            color = Color.Black
-                        )
-                        Spacer(modifier = Modifier.height(30.dp))
-                        Button(
-                            onClick = {
-                                // Handle email pitcher button click
-                                val subject = Uri.encode(pitch.pitchname) // Encode the subject
-                                val body = Uri.encode("Dear ${pitch.username},\n\n") // Encode the body
-
-                                val uri = Uri.parse("mailto:${pitch.email}?subject=$subject&body=$body")
-
-                                val intent = Intent(Intent.ACTION_SENDTO).apply {
-                                    data = uri
-                                }
-
-                                try {
-
-                                    ContextCompat.startActivity(context, Intent.createChooser(intent, "Choose an email client"), null)
-                                } catch (e: Exception) {
-                                    Log.e("Msg", e.message.toString())
-                                    Toast.makeText(context, "No email app found",
-                                        Toast.LENGTH_LONG).show()
-                                }
-                            },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = teal,
-                                contentColor = Color.White
-                            ),
-                            shape = RoundedCornerShape(0.dp),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(55.dp)
-                        ) {
-                            Text(
-                                "Email Pitcher",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp
-                            )
-                        }
                     }
+
                 }
+
             }
         }
         is GetPitchByIdUiState.Error -> {

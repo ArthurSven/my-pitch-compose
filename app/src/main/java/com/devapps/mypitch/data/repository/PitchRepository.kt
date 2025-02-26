@@ -6,6 +6,7 @@ import com.devapps.mypitch.ui.utils.state.Response
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.exceptions.SupabaseEncodingException
 import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.postgrest.query.Order
 
 interface PitchRepository {
 
@@ -39,8 +40,10 @@ class SupabaseRepository(private val supabaseClient: SupabaseClient) : PitchRepo
     override suspend fun getPitches(): List<PitchResponse> {
         return try {
             val response = supabaseClient.postgrest["pitch"]
-                .select()
-                .decodeList<PitchResponse>()  // Decodes the result into a list of Pitch objects
+                .select {
+                    order(column = "created_at", order = Order.DESCENDING)
+                }
+                .decodeList<PitchResponse>() // Decodes the result into a list of Pitch objects
             response
         } catch (e: SupabaseEncodingException) {
             emptyList()  // Return an empty list in case of decoding errors
@@ -80,6 +83,7 @@ class SupabaseRepository(private val supabaseClient: SupabaseClient) : PitchRepo
                     filter {
                         eq("google_id", userid)
                     }
+                    order(column = "created_at", order = Order.DESCENDING)
                 }
                 .decodeList<PitchResponse>()
             response

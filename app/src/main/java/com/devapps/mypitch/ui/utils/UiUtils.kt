@@ -11,12 +11,12 @@ data class BottomNavItem(
 )
 
 val categoryList = listOf<String>("All", "Agriculture", "Art & Design", "Business", "Education",
-    "Entertainment", "Fashion", "Food & Beverage", "Manufacturing", "Real estate", "Retail",
+    "Entertainment", "Fashion", "Food & Beverage", "IT", "Manufacturing", "Real estate", "Retail",
     "Tourism", "Misc"
 )
 
 val formCategoryList = mutableListOf<String>("Agriculture", "Art & Design", "Business", "Education",
-    "Entertainment", "Fashion", "Food & Beverage", "Manufacturing", "Real estate", "Retail",
+    "Entertainment", "Fashion", "Food & Beverage", "IT", "Manufacturing", "Real estate", "Retail",
     "Tourism", "Misc"
 )
 

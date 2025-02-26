@@ -848,6 +848,7 @@ fun EditMyPitch(
                     )
                     Button(
                         onClick = {
+                            updateAttempted = true
                             coroutineScope.launch {
                                 val updatedPitch = Pitch(
                                     pitchname = pitchViewModel.pitchName,
@@ -882,11 +883,10 @@ fun EditMyPitch(
                         }
 
                         CreatePitchUiState.Success -> {
-                            if (updateAttempted) {
+                            LaunchedEffect(Unit) {
                                 Toast.makeText(context, "Pitch successfully updated", Toast.LENGTH_LONG).show()
-                                myPitchHomeNavController.navigate(MyPitches.route)
+                                myPitchHomeNavController.navigate(MyPitches.route) // Navigate after success
                             }
-
                         }
 
                         is CreatePitchUiState.Error -> {

@@ -12,6 +12,7 @@ import com.devapps.mypitch.data.repository.PitchRepository
 import com.devapps.mypitch.ui.utils.state.CreatePitchUiState
 import com.devapps.mypitch.ui.utils.state.GetPitchByIdUiState
 import com.devapps.mypitch.ui.utils.state.Response
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -152,8 +153,18 @@ class PitchViewModel(
             val result = pitchRepository.updatePitch(pitch,pitchid)
 
             when (result) {
-                is  Response.Success -> CreatePitchUiState.Success
-                is Response.Error -> _uiState.value = CreatePitchUiState.Error((result.error ?: "Failed to create pitch.").toString())
+                is  Response.Success -> {
+                    _uiState.value = CreatePitchUiState.Success
+                    // Refetch the pitch data to update the UI
+                    getPitchById(pitchid)
+                    viewModelScope.launch {
+                        delay(2000) // Optional: Add a small delay to show the success message
+                        _uiState.value = CreatePitchUiState.Idle
+                    }
+                }
+                is Response.Error -> {
+                    _uiState.value = CreatePitchUiState.Error((result.error ?: "Failed to create pitch.").toString())
+                }
             }
         } catch (e: Exception) {
             _uiState.value = CreatePitchUiState.Error("Error creating pitch data: ${e.message}")

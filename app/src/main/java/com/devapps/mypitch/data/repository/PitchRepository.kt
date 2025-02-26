@@ -114,11 +114,17 @@ class SupabaseRepository(private val supabaseClient: SupabaseClient) : PitchRepo
     override suspend fun updatePitch(pitch: Pitch, pitchid: String): Response {
         return try {
             supabaseClient.postgrest["pitch"].update({
-                pitch
+                set("pitchname", pitch.pitchname)
+                set("category", pitch.category)
+                set("description", pitch.description)
+                set("google_id", pitch.google_id)
+                set("username", pitch.username)
+                set("email", pitch.email)
             }) {
                 filter {
                     eq("pitchid", pitchid)
                 }
+                select()
             }
             Response.Success
         } catch (e: Exception) {

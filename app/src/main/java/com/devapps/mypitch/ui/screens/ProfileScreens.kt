@@ -367,7 +367,9 @@ fun MyHomeScreen(
     var search by rememberSaveable {
         mutableStateOf("")
     }
-    val pitchViewModel: PitchViewModel = koinViewModel { parametersOf(userData) }
+    var selectedCategory by rememberSaveable { mutableStateOf(0) }
+
+        val pitchViewModel: PitchViewModel = koinViewModel { parametersOf(userData) }
     val uiState by pitchViewModel.uiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current.applicationContext
@@ -432,7 +434,14 @@ fun MyHomeScreen(
                     .height(2.dp)
                 )
             }
-            CategoryRow(categoryList)
+            CategoryRow(
+                categoryList,
+                selectedCategory = selectedCategory,
+                onCategorySelected = { index ->
+                    selectedCategory = index // Update selected category
+                }
+            )
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -443,7 +452,11 @@ fun MyHomeScreen(
                     modifier = Modifier
                         .height(10.dp)
                 )
-                PitchList(pitchViewModel, myPitchHomeNavController)
+                PitchList(
+                    pitchViewModel,
+                    myPitchHomeNavController,
+                    selectedCategory = selectedCategory
+                )
             }
 
         }
@@ -461,6 +474,8 @@ fun MyPitchListScreen(
     var search by rememberSaveable {
         mutableStateOf("")
     }
+
+    var selectedCategory by rememberSaveable { mutableStateOf(0) }
     val pitchViewModel: PitchViewModel = koinViewModel { parametersOf(userData) }
 
     Surface(
@@ -524,7 +539,13 @@ fun MyPitchListScreen(
                     .height(2.dp)
                 )
             }
-            CategoryRow(categoryList)
+            CategoryRow(
+                categoryList,
+                selectedCategory = selectedCategory,
+                onCategorySelected = { index ->
+                    selectedCategory = index // Update selected category
+                }
+            )
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -535,7 +556,10 @@ fun MyPitchListScreen(
                     modifier = Modifier
                         .height(10.dp)
                 )
-                MyPitchList(pitchViewModel, myPitchHomeNavController)
+                MyPitchList(pitchViewModel,
+                    myPitchHomeNavController,
+                    selectedCategory
+                )
             }
         }
 
@@ -600,6 +624,7 @@ fun CreateMyPitch(userData: UserData?) {
                     focusedBorderColor = teal,
                     focusedLabelColor = teal,
                     focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
                     cursorColor = Color.Black
                 ),
                 placeholder = {
@@ -780,6 +805,7 @@ fun EditMyPitch(
                             focusedBorderColor = teal,
                             focusedLabelColor = teal,
                             focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black,
                             cursorColor = Color.Black
                         ),
                         placeholder = {
@@ -858,7 +884,7 @@ fun EditMyPitch(
                         CreatePitchUiState.Success -> {
                             if (updateAttempted) {
                                 Toast.makeText(context, "Pitch successfully updated", Toast.LENGTH_LONG).show()
-                                myPitchHomeNavController.popBackStack()
+                                myPitchHomeNavController.navigate(MyPitches.route)
                             }
 
                         }

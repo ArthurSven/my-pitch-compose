@@ -78,9 +78,10 @@ import com.google.android.gms.auth.api.identity.Identity
 import kotlinx.coroutines.launch
 
 @Composable
-fun CategoryRow(itemList: List<String>) {
-
-    var selectedCategory by remember { mutableStateOf(0) }
+fun CategoryRow(
+    itemList: List<String>,
+    selectedCategory: Int,
+    onCategorySelected: (Int) -> Unit) {
 
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
@@ -91,15 +92,21 @@ fun CategoryRow(itemList: List<String>) {
             CategoryUiItem(
                 category = category,
                 isSelected = index == selectedCategory,
-                onClick = { selectedCategory = index}
+                onClick = { onCategorySelected(index)}
             )
         }
     }
 }
 
 @Composable
-fun CategoryUiItem(category: String, isSelected: Boolean, onClick: () -> Unit) {
+fun CategoryUiItem(
+    category: String,
+    isSelected: Boolean,
+    onClick: () -> Unit) {
+
     Card(
+        modifier = Modifier
+            .clickable { onClick() },
         shape = RoundedCornerShape(20.dp),
         colors = if (isSelected) CardDefaults.cardColors(
             containerColor = teal,
@@ -215,6 +222,7 @@ fun StretchableOutlinedTextField(
             focusedBorderColor = teal,
             focusedLabelColor = teal,
             focusedTextColor = Color.Black,
+            unfocusedTextColor = Color.Black,
             cursorColor = Color.Black,
         ),
         keyboardOptions = KeyboardOptions.Default.copy(
@@ -358,13 +366,23 @@ fun PitchItem(
 @Composable
 fun PitchList(
     pitchViewModel: PitchViewModel,
-    myPitchHomeNavController: NavController) {
+    myPitchHomeNavController: NavController,
+    selectedCategory: Int) {
 
     val pitches by pitchViewModel.pitches.collectAsState()
     val isLoading by pitchViewModel.isLoading.collectAsState()
 
     LaunchedEffect(Unit) {
         pitchViewModel.getPitches() // Fetch pitches when screen loads
+    }
+
+    // Filter pitches based on the selected category
+    val filteredPitches = remember(pitches, selectedCategory) {
+        if (selectedCategory == 0) {
+            pitches // Show all pitches if "All" is selected
+        } else {
+            pitches.filter { it.category == categoryList[selectedCategory] }
+        }
     }
 
     if (isLoading) {
@@ -375,7 +393,7 @@ fun PitchList(
         }
     } else {
         LazyColumn {
-            items(pitches) { pitch ->
+            items(filteredPitches) { pitch ->
                 PitchItem(pitch, myPitchHomeNavController)
                 Spacer(modifier = Modifier.height(10.dp))
             }
@@ -521,7 +539,8 @@ fun MyPitchItem(
 @Composable
 fun MyPitchList(
     pitchViewModel: PitchViewModel,
-    myPitchHomeNavController: NavController) {
+    myPitchHomeNavController: NavController,
+    selectedCategory: Int) {
 
     var pitchToDelete by remember { mutableStateOf<PitchResponse?>(null) }
     val showDeleteDialog = remember { mutableStateOf(false) }
@@ -547,6 +566,15 @@ fun MyPitchList(
         }
     }
 
+    // Filter pitches based on the selected category
+    val filteredPitches = remember(pitches, selectedCategory) {
+        if (selectedCategory == 0) {
+            pitches // Show all pitches if "All" is selected
+        } else {
+            pitches.filter { it.category == categoryList[selectedCategory] }
+        }
+    }
+
     if (isLoading) {
         // Show Loading Placeholder
         repeat(5) {
@@ -555,7 +583,7 @@ fun MyPitchList(
         }
     } else {
         LazyColumn {
-            items(pitches) { pitch ->
+            items(filteredPitches) { pitch ->
                 MyPitchItem(
                     pitch,
                     myPitchHomeNavController,

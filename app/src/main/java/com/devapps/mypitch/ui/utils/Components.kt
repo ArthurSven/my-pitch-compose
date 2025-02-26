@@ -23,13 +23,21 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -41,11 +49,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
@@ -54,14 +64,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.devapps.mypitch.data.auth.GoogleAuthClient
 import com.devapps.mypitch.data.model.Pitch
 import com.devapps.mypitch.data.model.PitchResponse
 import com.devapps.mypitch.data.model.UserData
+import com.devapps.mypitch.ui.EditPitch
 import com.devapps.mypitch.ui.ReadPitch
 import com.devapps.mypitch.ui.theme.feintGrey
 import com.devapps.mypitch.ui.theme.teal
 import com.devapps.mypitch.ui.theme.textGrey
 import com.devapps.mypitch.ui.viewmodels.PitchViewModel
+import com.google.android.gms.auth.api.identity.Identity
+import kotlinx.coroutines.launch
 
 @Composable
 fun CategoryRow(itemList: List<String>) {
@@ -380,9 +394,232 @@ fun LoadingPitchItem() {
     )
 }
 
+@Composable
+fun MyPitchItem(
+    pitch: PitchResponse,
+    myPitchHomeNavController: NavController,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
+) {
+
+    val showOptions = remember { mutableStateOf(false) }
+    val showDeleteDialog = remember { mutableStateOf(false) }
+
+    OutlinedCard(
+        onClick = {
+         //   myPitchHomeNavController.navigate(ReadPitch.route + "/${pitch.pitchid}")
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp),
+        colors = CardDefaults.outlinedCardColors(
+            containerColor = Color.White
+        ),
+        border = BorderStroke(3.dp, teal),
+        shape = RoundedCornerShape(15.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp)
+        ) {
+            Text(pitch.category,
+                color = textGrey,
+                fontSize = 14.sp,
+                modifier = Modifier
+                    .fillMaxWidth(),
+                textAlign = TextAlign.Justify
+            )
+            Spacer(modifier = Modifier
+                .height(7.dp)
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(pitch.pitchname,
+                    color = teal,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 24.sp,
+                    modifier = Modifier
+                        .weight(1f), // Pushes the icon to the end
+                    textAlign = TextAlign.Start
+                )
+
+                IconButton(
+                    onClick = { showOptions.value = true }) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = null,
+                        tint = teal
+                    )
+                }
+                DropdownMenu(
+                    expanded = showOptions.value,
+                    onDismissRequest = {
+                        showOptions.value = false
+                    },
+                    modifier = Modifier
+                        .background(color = Color.White)
+                        .width(80.dp)) {
+                    DropdownMenuItem(
+                        text = {
+                            Text(text = "Edit",
+                                color = Color.Black)
+                        },
+                        onClick = {
+                            onEdit()
+                            showOptions.value = false
+                        },
+                        modifier = Modifier
+                            .background(color = Color.White)
+                    )
+                    DropdownMenuItem(
+                        text = {
+                            Text(text = "Delete",
+                                color = Color.Black)
+                        },
+                        onClick = {
+                            onDelete()
+                            showOptions.value = false
+                        },
+                        modifier = Modifier
+                            .background(color = Color.White)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier
+                .height(10.dp)
+            )
+            Text(pitch.description,
+                color = textGrey,
+                fontSize = 14.sp,
+                modifier = Modifier
+                    .fillMaxWidth(),
+                textAlign = TextAlign.Justify,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+            Spacer(modifier = Modifier
+                .height(8.dp)
+            )
+            Text(
+                "By: " + pitch.username,
+                color = textGrey,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .fillMaxWidth(),
+                textAlign = TextAlign.End
+            )
+        }
+    }
+}
+
+@Composable
+fun MyPitchList(
+    pitchViewModel: PitchViewModel,
+    myPitchHomeNavController: NavController) {
+
+    var pitchToDelete by remember { mutableStateOf<PitchResponse?>(null) }
+    val showDeleteDialog = remember { mutableStateOf(false) }
+
+    val pitches by pitchViewModel.pitches.collectAsState()
+    val isLoading by pitchViewModel.isLoading.collectAsState()
+
+    val context = LocalContext.current.applicationContext
+    val coroutineScope = rememberCoroutineScope()
+
+    val googleClientAuth by lazy {
+        GoogleAuthClient(
+            context,
+            oneTapClient = Identity.getSignInClient(context)
+        )
+    }
+
+    val userId = googleClientAuth.getSignedInUser()?.userId
+    LaunchedEffect(userId) {
+        if (userId != null) {
+            pitchViewModel.setCreatedBy(userId)
+            pitchViewModel.getPitchesByUserId(userId)
+        }
+    }
+
+    if (isLoading) {
+        // Show Loading Placeholder
+        repeat(5) {
+            LoadingPitchItem()
+            Spacer(modifier = Modifier.height(10.dp))
+        }
+    } else {
+        LazyColumn {
+            items(pitches) { pitch ->
+                MyPitchItem(
+                    pitch,
+                    myPitchHomeNavController,
+                    onEdit = {
+                        myPitchHomeNavController.navigate(EditPitch.route + "/${pitch.pitchid}")
+                    },
+                    onDelete = {
+                        pitchToDelete = pitch
+                        showDeleteDialog.value = true
+                    }
+
+                )
+                if (showDeleteDialog.value) {
+                    AlertDialog(
+                        onDismissRequest = { showDeleteDialog.value = false },
+                        title = { Text("Delete Pitch",
+                            color = Color.Black
+                        ) },
+                        containerColor = Color.White,
+                        text = { Text("Are you sure you want to delete this Pitch idea?",
+                            color = Color.Black
+                        ) },
+                        confirmButton = {
+                            Button(
+                                onClick = {
+                                    pitchToDelete?.let { flashcard ->
+                                        coroutineScope.launch {
+                                            //flashcardViewModel.deleteFlashcard(flashcard)
+                                            pitchToDelete = null
+                                        }
+                                    }
+                                    showDeleteDialog.value = false
+                                },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color.Red,
+                                    contentColor = Color.White
+                                )
+                            ) {
+                                Text("Delete",
+                                    color = Color.White)
+                            }
+                        },
+                        dismissButton = {
+                            Button(
+                                onClick = { showDeleteDialog.value = false },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color.White,
+                                    contentColor = teal
+                                )) {
+                                Text("No",
+                                    color = teal
+                                )
+                            }
+                        }
+                    )
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+            }
+        }
+    }
+}
 
 @Composable
 @Preview(showBackground = true)
 fun PreviewUiUtilities() {
-
+//MyPitchItem()
 }

@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.devapps.mypitch.data.model.Pitch
 import com.devapps.mypitch.data.model.PitchResponse
 import com.devapps.mypitch.data.model.UserData
@@ -14,6 +15,7 @@ import com.devapps.mypitch.ui.utils.state.Response
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
@@ -37,6 +39,22 @@ class PitchViewModel(
     private val _pitch = MutableStateFlow<GetPitchByIdUiState>(GetPitchByIdUiState.Idle)
     val pitch: StateFlow<GetPitchByIdUiState> = _pitch
 
+    private val _createdBy = MutableStateFlow("")
+    val createdBy: StateFlow<String> = _createdBy
+
+    init {
+        viewModelScope.launch {
+            getPitchesByUserId(_createdBy.value)
+        }
+    }
+
+    fun setCreatedBy(userId: String) {
+        _createdBy.value = userId
+        viewModelScope.launch {
+            getPitchesByUserId(userId)
+        }
+
+    }
 
 
     var pitchName by mutableStateOf("")
@@ -99,15 +117,49 @@ class PitchViewModel(
         }
     }
 
+    suspend fun getPitchesByUserId(userid: String) {
+        try {
+            _isLoading.value = true
+            val findPitches = pitchRepository.getPitchesByUserId(userid)
+            _pitches.value = findPitches
+        } catch (e: Exception) {
+            _uiState.value = CreatePitchUiState.Error("Error fetching your pitches: ${e.message}")
+        } finally {
+            _isLoading.value = false
+        }
+    }
+
     suspend fun getPitchById(pitchid: String) {
         _pitch.value = GetPitchByIdUiState.Loading // Set state to Loading
         try {
             // Fetch the pitch from the repository
             val pitch = pitchRepository.getPitchById(pitchid)
+
+            pitchName = pitch.pitchname
+            pitchCategory = pitch.category
+            description = pitch.description
+
             _pitch.value = GetPitchByIdUiState.Success(pitch) // Set state to Success
         } catch (e: Exception) {
             // Handle errors and set state to Error
             _pitch.value = GetPitchByIdUiState.Error("Failed to fetch pitch: ${e.message}")
         }
     }
+
+    suspend fun updatePitch(pitch: Pitch, pitchid: String) {
+        try {
+            _uiState.value = CreatePitchUiState.Loading
+            val result = pitchRepository.updatePitch(pitch,pitchid)
+
+            when (result) {
+                is  Response.Success -> CreatePitchUiState.Success
+                is Response.Error -> _uiState.value = CreatePitchUiState.Error((result.error ?: "Failed to create pitch.").toString())
+            }
+        } catch (e: Exception) {
+            _uiState.value = CreatePitchUiState.Error("Error creating pitch data: ${e.message}")
+        }
+
+    }
+
+    
 }

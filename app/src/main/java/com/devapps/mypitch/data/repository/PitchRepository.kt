@@ -14,6 +14,12 @@ interface PitchRepository {
     suspend fun getPitches() : List<PitchResponse>
 
     suspend fun getPitchById(pitchid: String) : PitchResponse
+
+    suspend fun getPitchesByUserId(userid: String) : List<PitchResponse>
+
+    suspend fun deletePitch(pitchid: String): Response
+
+    suspend fun updatePitch(pitch: Pitch, pitchid: String) : Response
 }
 
 class SupabaseRepository(private val supabaseClient: SupabaseClient) : PitchRepository {
@@ -64,6 +70,59 @@ class SupabaseRepository(private val supabaseClient: SupabaseClient) : PitchRepo
         } catch (e: Exception) {
             // Handle other exceptions (e.g., network errors)
             throw Exception("Failed to fetch pitch: ${e.message}")
+        }
+    }
+
+    override suspend fun getPitchesByUserId(userid: String): List<PitchResponse> {
+        return try {
+            val response = supabaseClient.postgrest["pitch"]
+                .select {
+                    filter {
+                        eq("google_id", userid)
+                    }
+                }
+                .decodeList<PitchResponse>()
+            response
+        } catch (e: SupabaseEncodingException) {
+            emptyList()
+        } catch (e: Exception) {
+            emptyList()
+        } catch (e: NoSuchElementException) {
+            emptyList()
+        }
+    }
+
+
+    override suspend fun deletePitch(pitchid: String): Response {
+        return try {
+            // Delete the pitch with the given pitchid
+            supabaseClient.postgrest["pitch"]
+                .delete {
+                    filter {
+                        eq("pitchid", pitchid) // Filter by pitchid
+                    }
+                }
+            Response.Success // Return success response
+        } catch (e: SupabaseEncodingException) {
+            val errorMessage = e.message ?: "Supabase Error: ${e.cause?.message}" // Detailed error message
+            Response.Error(Exception(errorMessage))
+        } catch (e: Exception) {
+            Response.Error(Exception("An unexpected error occurred: ${e.message}"))
+        }
+    }
+
+    override suspend fun updatePitch(pitch: Pitch, pitchid: String): Response {
+        return try {
+            supabaseClient.postgrest["pitch"].update({
+                pitch
+            }) {
+                filter {
+                    eq("pitchid", pitchid)
+                }
+            }
+            Response.Success
+        } catch (e: Exception) {
+            Response.Error(java.lang.Exception("Your pitch could not update: " + e.localizedMessage))
         }
     }
 

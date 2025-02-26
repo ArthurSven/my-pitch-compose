@@ -8,6 +8,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -56,6 +57,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -87,8 +89,10 @@ import coil3.request.ImageRequest
 import coil3.request.allowHardware
 import coil3.request.bitmapConfig
 import com.devapps.mypitch.R
+import com.devapps.mypitch.data.model.Pitch
 import com.devapps.mypitch.data.model.UserData
 import com.devapps.mypitch.ui.CreatePitch
+import com.devapps.mypitch.ui.EditPitch
 import com.devapps.mypitch.ui.MyHome
 import com.devapps.mypitch.ui.MyPitches
 import com.devapps.mypitch.ui.ReadPitch
@@ -100,13 +104,16 @@ import com.devapps.mypitch.ui.utils.BottomNavItem
 import com.devapps.mypitch.ui.utils.CategoryDropdown
 import com.devapps.mypitch.ui.utils.CategoryRow
 import com.devapps.mypitch.ui.utils.MyMessageInboxList
+import com.devapps.mypitch.ui.utils.MyPitchList
 import com.devapps.mypitch.ui.utils.PitchList
 import com.devapps.mypitch.ui.utils.StretchableOutlinedTextField
 import com.devapps.mypitch.ui.utils.categoryList
 import com.devapps.mypitch.ui.utils.formCategoryList
 import com.devapps.mypitch.ui.utils.messageArray
 import com.devapps.mypitch.ui.utils.state.CreatePitchUiState
+import com.devapps.mypitch.ui.utils.state.GetPitchByIdUiState
 import com.devapps.mypitch.ui.viewmodels.PitchViewModel
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -313,7 +320,7 @@ fun MyPitchScreens(
                 MyHomeScreen(userData,myPitchHomeNavController)
             }
             composable(MyPitches.route) {
-              MyPitchListScreen()
+              MyPitchListScreen(userData, myPitchHomeNavController)
             }
           composable(CreatePitch.route) {
               CreateMyPitch(userData)
@@ -332,6 +339,21 @@ fun MyPitchScreens(
                   // Handle the case where pitchid is null, e.g., show an error message or navigate back
                   Text("Error: Pitch ID is missing") // Placeholder error message
               }
+          }
+          composable(EditPitch.route+"/{pitchid}",
+              arguments = listOf(navArgument("pitchid") { type = NavType.StringType }))
+          {
+              backStackEntry ->
+              val pitchid = backStackEntry.arguments?.getString("pitchid")
+              if (pitchid != null) {
+                  EditMyPitch(
+                      userData,
+                      pitchViewModel,
+                      pitchid,
+                      myPitchHomeNavController
+                  )
+              }
+
           }
       }
     }
@@ -431,11 +453,16 @@ fun MyHomeScreen(
 }
 
 @Composable
-fun MyPitchListScreen() {
+fun MyPitchListScreen(
+    userData: UserData?,
+    myPitchHomeNavController: NavController
+) {
 
     var search by rememberSaveable {
         mutableStateOf("")
     }
+    val pitchViewModel: PitchViewModel = koinViewModel { parametersOf(userData) }
+
     Surface(
         color = Color.White
     ) {
@@ -498,85 +525,24 @@ fun MyPitchListScreen() {
                 )
             }
             CategoryRow(categoryList)
-
-        }
-
-    }
-
-}
-
-@Composable
-fun MyPitchMessageScreen() {
-
-    var search by rememberSaveable {
-        mutableStateOf("")
-    }
-    Surface(
-        color = Color.White
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.White)
-        ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(20.dp)
                     .background(Color.White)
             ) {
-                Spacer(modifier = Modifier
-                    .height(10.dp)
-                )
-                Text("Inbox",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
-                )
-                Spacer(modifier = Modifier
-                    .height(20.dp)
-                )
-                OutlinedTextField(
-                    value = search,
-                    onValueChange = {
-                        search == it
-                    },
-                    trailingIcon = {
-                        Icon(
-                            Icons.Outlined.Search, contentDescription = "search", tint = Color.DarkGray
-                        )
-                    },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = feintGrey,
-                        unfocusedContainerColor = feintGrey,
-                        unfocusedTextColor = Color.Gray,
-                        focusedTextColor = Color.DarkGray,
-                        unfocusedBorderColor = Color.LightGray,
-                        focusedBorderColor = Color.LightGray
-                    ),
-                    shape = RoundedCornerShape(20.dp),
-                    placeholder = {
-                        Text("Search",
-                            fontSize = 10.sp)
-                    },
+                Spacer(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(40.dp)
+                        .height(10.dp)
                 )
-                Spacer(modifier = Modifier
-                    .height(2.dp)
-                )
+                MyPitchList(pitchViewModel, myPitchHomeNavController)
             }
-            CategoryRow(messageArray)
-            Spacer(modifier = Modifier
-                .height(10.dp)
-            )
-            MyMessageInboxList()
         }
 
     }
 
 }
+
 
 @Composable
 fun CreateMyPitch(userData: UserData?) {
@@ -723,6 +689,195 @@ fun CreateMyPitch(userData: UserData?) {
                 CreatePitchUiState.Idle -> {} // Handle idle state
                 else -> {}
             }
+        }
+    }
+}
+
+@Composable
+fun EditMyPitch(
+    userData: UserData?,
+    pitchViewModel: PitchViewModel,
+    pitchid: String,
+    myPitchHomeNavController: NavController
+    ) {
+
+    val uiState by pitchViewModel.uiState.collectAsState()
+    val pitchState by pitchViewModel.pitch.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current.applicationContext
+
+
+    LaunchedEffect(pitchid) {
+        pitchViewModel.getPitchById(pitchid)
+    }
+
+    val userId = userData?.userId
+    var updateAttempted by remember {
+        mutableStateOf(false)
+    }
+
+    when (pitchState) {
+        is GetPitchByIdUiState.Idle -> {
+            // Show nothing or a placeholder
+        }
+        is GetPitchByIdUiState.Loading -> {
+            // Show a loading indicator
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.White),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = teal)
+            }
+        }
+        is GetPitchByIdUiState.Success -> {
+            Surface(
+                color = Color.White
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.White)
+                        .padding(20.dp)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    Spacer(
+                        modifier = Modifier
+                            .height(10.dp)
+                    )
+                    Text(
+                        "Edit Pitch",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                    Spacer(
+                        modifier = Modifier
+                            .height(20.dp)
+                    )
+                    Text(
+                        "Here you can give an overview of the pitch you would like to present on " +
+                                "this app.",
+                        fontSize = 16.sp,
+                        color = textGrey,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                    Spacer(
+                        modifier = Modifier
+                            .height(30.dp)
+                    )
+                    OutlinedTextField(
+                        value = pitchViewModel.pitchName, onValueChange = {
+                            pitchViewModel.updatePitchName(it)
+                        },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = teal,
+                            focusedLabelColor = teal,
+                            focusedTextColor = Color.Black,
+                            cursorColor = Color.Black
+                        ),
+                        placeholder = {
+                            Text(text = "Pitch title")
+                        },
+                        label = {
+                            Text(text = "Pitch title")
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                    Spacer(
+                        modifier = Modifier
+                            .height(10.dp)
+                    )
+                    CategoryDropdown(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        categoryList = formCategoryList,
+                        selectedCategory = pitchViewModel.pitchCategory,
+                        onCategorySelected = { pitchViewModel.updatePitchCategory(it) }
+                    )
+
+                    Spacer(
+                        modifier = Modifier
+                            .height(30.dp)
+                    )
+                    StretchableOutlinedTextField(
+                        pitchViewModel.description,
+                        onValueChange = {
+                            pitchViewModel.updateDescription(it)
+                        },
+                        placeholder = "Describe your pitch",
+                        minLines = 10,
+                        maxLines = 50
+                    )
+                    Spacer(
+                        modifier = Modifier
+                            .height(20.dp)
+                    )
+                    Button(
+                        onClick = {
+                            coroutineScope.launch {
+                                val updatedPitch = Pitch(
+                                    pitchname = pitchViewModel.pitchName,
+                                    category = pitchViewModel.pitchCategory,
+                                    description = pitchViewModel.description,
+                                    google_id = userData?.userId,
+                                    email = userData?.email,
+                                    username = userData?.username
+                                )
+                                pitchViewModel.updatePitch(updatedPitch, pitchid)
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = teal,
+                            contentColor = Color.White
+                        ),
+                        shape = RoundedCornerShape(0.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(55.dp)
+                    ) {
+                        Text(
+                            "Update Pitch",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
+                    }
+
+                    when (uiState) {
+                        CreatePitchUiState.Loading -> {
+                            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                        }
+
+                        CreatePitchUiState.Success -> {
+                            if (updateAttempted) {
+                                Toast.makeText(context, "Pitch successfully updated", Toast.LENGTH_LONG).show()
+                                myPitchHomeNavController.popBackStack()
+                            }
+
+                        }
+
+                        is CreatePitchUiState.Error -> {
+                            val errorMessage = (uiState as CreatePitchUiState.Error).message
+                            Toast.makeText(context, "Update failed: $errorMessage", Toast.LENGTH_LONG).show()
+                            Log.e("Error message", errorMessage)
+                        }
+
+                        CreatePitchUiState.Idle -> {} // Handle idle state
+                        else -> {}
+                    }
+                }
+            }
+
+        }
+        is GetPitchByIdUiState.Error -> {
+
         }
     }
 }

@@ -38,6 +38,10 @@ object ReadPitch : ScreenDestination {
     fun createRoute(pitchid: String) = "read_pitch_screen/$pitchid"
 }
 
+object EditPitch : ScreenDestination {
+    override val route = "edit_pitch_screen"
+}
+
 object Profile : ScreenDestination {
     override val route = "profile_screen"
 }

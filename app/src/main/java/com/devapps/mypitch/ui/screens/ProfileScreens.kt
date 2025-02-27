@@ -622,7 +622,11 @@ fun CreateMyPitch(userData: UserData?) {
                 },
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = teal,
+                    unfocusedBorderColor = Color.LightGray,
                     focusedLabelColor = teal,
+                    unfocusedLabelColor = Color.LightGray,
+                    unfocusedContainerColor = feintGrey,
+                    focusedContainerColor = feintGrey,
                     focusedTextColor = Color.Black,
                     unfocusedTextColor = Color.Black,
                     cursorColor = Color.Black
@@ -630,6 +634,7 @@ fun CreateMyPitch(userData: UserData?) {
                 placeholder = {
                     Text(text = "Pitch title")
                 },
+                shape = RoundedCornerShape(20.dp),
                 label = {
                     Text(text = "Pitch title")
                 },
@@ -675,7 +680,7 @@ fun CreateMyPitch(userData: UserData?) {
                     containerColor = teal,
                     contentColor = Color.White
                 ),
-                shape = RoundedCornerShape(0.dp),
+                shape = RoundedCornerShape(20.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(55.dp)
@@ -804,10 +809,15 @@ fun EditMyPitch(
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = teal,
                             focusedLabelColor = teal,
+                            unfocusedLabelColor = Color.LightGray,
+                            unfocusedBorderColor = Color.LightGray,
+                            unfocusedContainerColor = feintGrey,
+                            focusedContainerColor = feintGrey,
                             focusedTextColor = Color.Black,
                             unfocusedTextColor = Color.Black,
                             cursorColor = Color.Black
                         ),
+                        shape = RoundedCornerShape(20.dp),
                         placeholder = {
                             Text(text = "Pitch title")
                         },
@@ -865,7 +875,7 @@ fun EditMyPitch(
                             containerColor = teal,
                             contentColor = Color.White
                         ),
-                        shape = RoundedCornerShape(0.dp),
+                        shape = RoundedCornerShape(20.dp),
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(55.dp)

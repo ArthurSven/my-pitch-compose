@@ -178,7 +178,7 @@ fun ReadPitchScreen(
                             containerColor = teal,
                             contentColor = Color.White
                         ),
-                        shape = RoundedCornerShape(0.dp),
+                        shape = RoundedCornerShape(10.dp),
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(55.dp)

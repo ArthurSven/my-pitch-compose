@@ -1,5 +1,7 @@
 package com.devapps.mypitch.ui.utils
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -30,6 +32,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
@@ -38,6 +41,8 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.MenuItemColors
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -69,10 +74,12 @@ import com.devapps.mypitch.data.model.Pitch
 import com.devapps.mypitch.data.model.PitchResponse
 import com.devapps.mypitch.data.model.UserData
 import com.devapps.mypitch.ui.EditPitch
+import com.devapps.mypitch.ui.MyPitches
 import com.devapps.mypitch.ui.ReadPitch
 import com.devapps.mypitch.ui.theme.feintGrey
 import com.devapps.mypitch.ui.theme.teal
 import com.devapps.mypitch.ui.theme.textGrey
+import com.devapps.mypitch.ui.utils.state.CreatePitchUiState
 import com.devapps.mypitch.ui.viewmodels.PitchViewModel
 import com.google.android.gms.auth.api.identity.Identity
 import kotlinx.coroutines.launch
@@ -223,6 +230,9 @@ fun StretchableOutlinedTextField(
             focusedLabelColor = teal,
             focusedTextColor = Color.Black,
             unfocusedTextColor = Color.Black,
+            unfocusedBorderColor = Color.LightGray,
+            unfocusedContainerColor = feintGrey,
+            focusedContainerColor = feintGrey,
             cursorColor = Color.Black,
         ),
         keyboardOptions = KeyboardOptions.Default.copy(
@@ -268,11 +278,17 @@ fun CategoryDropdown(
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color(0xFF008080), // Teal color
-                focusedLabelColor = Color(0xFF008080), // Teal color
+                focusedBorderColor = teal,
+                focusedLabelColor = teal,
                 focusedTextColor = Color.Black,
-                cursorColor = Color.Black
-            )
+                unfocusedLabelColor = Color.LightGray,
+                unfocusedBorderColor = Color.LightGray,
+                unfocusedTextColor = Color.Black,
+                cursorColor = Color.Black,
+                unfocusedContainerColor = feintGrey,
+                focusedContainerColor = feintGrey,
+            ),
+            shape = RoundedCornerShape(20.dp)
         )
 
         // Dropdown menu
@@ -542,6 +558,7 @@ fun MyPitchList(
     myPitchHomeNavController: NavController,
     selectedCategory: Int) {
 
+    val uiState by pitchViewModel.uiState.collectAsState()
     var pitchToDelete by remember { mutableStateOf<PitchResponse?>(null) }
     val showDeleteDialog = remember { mutableStateOf(false) }
 
@@ -564,6 +581,34 @@ fun MyPitchList(
             pitchViewModel.setCreatedBy(userId)
             pitchViewModel.getPitchesByUserId(userId)
         }
+    }
+
+    when(uiState) {
+        CreatePitchUiState.Loading -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.White),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = teal)
+            }
+        }
+
+        CreatePitchUiState.Success -> {
+            LaunchedEffect(Unit) {
+                Toast.makeText(context, "Pitch successfully updated", Toast.LENGTH_LONG).show()
+                myPitchHomeNavController.navigate(MyPitches.route) // Navigate after success
+            }
+        }
+
+        is CreatePitchUiState.Error -> {
+            val errorMessage = (uiState as CreatePitchUiState.Error).message
+            Toast.makeText(context, "Update failed: $errorMessage", Toast.LENGTH_LONG).show()
+            Log.e("Error message", errorMessage)
+        }
+
+        CreatePitchUiState.Idle -> {}
     }
 
     // Filter pitches based on the selected category
@@ -609,9 +654,9 @@ fun MyPitchList(
                         confirmButton = {
                             Button(
                                 onClick = {
-                                    pitchToDelete?.let { flashcard ->
+                                    pitchToDelete?.let { pitch ->
                                         coroutineScope.launch {
-                                            //flashcardViewModel.deleteFlashcard(flashcard)
+                                            pitchViewModel.deletePitch(pitch.pitchid)
                                             pitchToDelete = null
                                         }
                                     }

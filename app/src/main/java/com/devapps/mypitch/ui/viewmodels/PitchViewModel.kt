@@ -172,5 +172,18 @@ class PitchViewModel(
 
     }
 
+    suspend fun deletePitch(pitchid: String) {
+        val result = pitchRepository.deletePitch(pitchid)
+
+        when(result) {
+            is Response.Success -> {
+               _uiState.value = CreatePitchUiState.Success
+            }
+
+            is Response.Error -> {
+                _uiState.value = CreatePitchUiState.Error("Error: " + result.error)
+            }
+        }
+    }
     
 }

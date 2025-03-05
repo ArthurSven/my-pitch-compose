@@ -2,21 +2,26 @@ package com.devapps.mypitch.ui.screens
 
 import android.app.Activity.RESULT_OK
 import android.widget.Toast
+import android.window.SplashScreen
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowColumn
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -28,10 +33,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon.Companion.Text
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,15 +46,42 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.devapps.mypitch.R
 import com.devapps.mypitch.data.auth.GoogleAuthClient
+import com.devapps.mypitch.ui.Check
 import com.devapps.mypitch.ui.Signup
 import com.devapps.mypitch.ui.Start
 import com.devapps.mypitch.ui.theme.teal
+import com.devapps.mypitch.ui.theme.textGrey
 import com.devapps.mypitch.ui.viewmodels.AuthViewModel
 import com.google.android.gms.auth.api.identity.Identity
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
+
+@Composable
+fun SplashScreens(myPitchNavController: NavController) {
+
+    LaunchedEffect(Unit) {
+        delay(2000)
+        myPitchNavController.navigate(Check.route)
+    }
+
+        Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(teal),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+            Image(
+                painterResource(R.drawable.pitch_refined),
+                contentDescription = null
+            )
+    }
+}
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -101,26 +135,24 @@ fun SignupScreen(myPitchNavController: NavController) {
             ) {
                 Spacer(
                     modifier = Modifier
-                        .height(270.dp)
+                        .height(220.dp)
                 )
-                Text("MyPitch",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 36.sp,
-                    color = Color.White,
-                    textAlign = TextAlign.Center,
+                Row(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(
+                        painterResource(
+                            R.drawable.pitch_refined),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(400.dp)
                     )
+                }
                 Spacer( modifier = Modifier
                     .height(10.dp)
-                )
-                Text("Let MyPitch get you those business partner and investors",
-                    fontWeight = FontWeight.Light,
-                    fontSize = 16.sp,
-                    color = Color.White,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
                 )
             }
             ElevatedCard(
@@ -137,16 +169,19 @@ fun SignupScreen(myPitchNavController: NavController) {
                         .fillMaxWidth()
                         .padding(25.dp)
                 ) {
-                    Text("Get started",
-                        color = teal,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
+                    Spacer( modifier = Modifier
+                        .height(60.dp)
+                    )
+                    Text("Let MyPitch get you those business partner and investors",
+                        fontWeight = FontWeight.Light,
+                        fontSize = 16.sp,
+                        color = textGrey,
                         textAlign = TextAlign.Center,
                         modifier = Modifier
                             .fillMaxWidth()
                     )
                     Spacer( modifier = Modifier
-                        .height(80.dp)
+                        .height(30.dp)
                     )
                     ElevatedButton(
                         onClick = {
@@ -167,7 +202,51 @@ fun SignupScreen(myPitchNavController: NavController) {
                             contentColor = Color.White
                         )
                     ) {
-                        Text("Google")
+                        Text("Sign in")
+                    }
+                    Spacer( modifier = Modifier
+                        .height(50.dp)
+                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "T's and C's",
+                            fontWeight = FontWeight.Light,
+                            fontSize = 16.sp,
+                            color = teal,
+                            modifier = Modifier
+                                .clickable {
+                                    // Navigate to T&C screen or open a web page
+                                    Toast.makeText(context, "Opening Terms and Conditions", Toast.LENGTH_SHORT).show()
+                                }
+                                .padding(end = 8.dp)
+                        )
+
+                        // Divider
+                        Text(
+                            text = "|",
+                            fontWeight = FontWeight.Light,
+                            fontSize = 16.sp,
+                            color = teal,
+                            modifier = Modifier.padding(horizontal = 8.dp)
+                        )
+
+                        // Privacy Policy Link
+                        Text(
+                            text = "Privacy Policy",
+                            fontWeight = FontWeight.Light,
+                            fontSize = 16.sp,
+                            color = teal,
+                            modifier = Modifier
+                                .clickable {
+                                    // Navigate to Privacy Policy screen or open a web page
+                                    Toast.makeText(context, "Opening Privacy Policy", Toast.LENGTH_SHORT).show()
+                                }
+                                .padding(start = 8.dp)
+                        )
                     }
                     LaunchedEffect(key1 = state.isSignInSuccessful) {
                         if (state.isSignInSuccessful) {
@@ -189,4 +268,5 @@ fun SignupScreen(myPitchNavController: NavController) {
 @Composable
 @Preview(showBackground = true)
 fun ScreenPreview() {
+
 }

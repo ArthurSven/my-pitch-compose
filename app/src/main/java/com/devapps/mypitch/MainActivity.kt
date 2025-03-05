@@ -25,9 +25,11 @@ import com.devapps.mypitch.data.auth.GoogleAuthClient
 import com.devapps.mypitch.ui.Check
 import com.devapps.mypitch.ui.Signout
 import com.devapps.mypitch.ui.Signup
+import com.devapps.mypitch.ui.Splashscreen
 import com.devapps.mypitch.ui.Start
 import com.devapps.mypitch.ui.screens.MyPitchScreens
 import com.devapps.mypitch.ui.screens.SignupScreen
+import com.devapps.mypitch.ui.screens.SplashScreens
 import com.devapps.mypitch.ui.theme.MyPitchTheme
 import com.devapps.mypitch.ui.viewmodels.AuthViewModel
 import kotlinx.coroutines.launch
@@ -61,7 +63,10 @@ import org.koin.androidx.compose.koinViewModel
 
      val myPitchNavController = rememberNavController()
 
-     NavHost(myPitchNavController, startDestination = Check.route) {
+     NavHost(myPitchNavController, startDestination = Splashscreen.route) {
+         composable(Splashscreen.route) {
+             SplashScreens(myPitchNavController)
+         }
          composable(Check.route) {
              LaunchedEffect(key1 = Unit) {
                 if(googleAuthClient.getSignedInUser() != null) {

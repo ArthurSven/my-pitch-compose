@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.text.format.DateUtils.formatDateTime
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -97,6 +98,7 @@ import com.devapps.mypitch.ui.MyHome
 import com.devapps.mypitch.ui.MyPitches
 import com.devapps.mypitch.ui.ReadPitch
 import com.devapps.mypitch.ui.Signout
+import com.devapps.mypitch.ui.Signup
 import com.devapps.mypitch.ui.theme.feintGrey
 import com.devapps.mypitch.ui.theme.teal
 import com.devapps.mypitch.ui.theme.textGrey
@@ -132,6 +134,10 @@ fun MyPitchScreens(
     val showMenu = remember { mutableStateOf(false) }
     var selectedItemIndex by rememberSaveable {
         mutableStateOf(0)
+    }
+
+    BackHandler {
+        myPitchNavController.popBackStack(Signup.route, false)
     }
 
     val items = listOf(

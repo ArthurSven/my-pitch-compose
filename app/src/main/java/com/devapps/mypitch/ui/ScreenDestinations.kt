@@ -5,6 +5,10 @@ interface ScreenDestination {
     val route: String
 }
 
+object Splashscreen : ScreenDestination {
+    override val route = "splash_screen"
+}
+
 object Check : ScreenDestination {
     override val route = "check_auth"
 }

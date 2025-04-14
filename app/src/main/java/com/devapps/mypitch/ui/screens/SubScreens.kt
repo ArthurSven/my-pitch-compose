@@ -69,6 +69,7 @@ fun ReadPitchScreen(
     val context = LocalContext.current
     // Fetch the pitch details when the screen is launched or when pitchid changes
     LaunchedEffect(pitchid) {
+        Log.d("ReadPitchScreen", "Fetching pitch with ID: $pitchid")
         pitchViewModel.getPitchById(pitchid)
     }
 
@@ -196,8 +197,28 @@ fun ReadPitchScreen(
         }
         is GetPitchByIdUiState.Error -> {
             // Navigate back to the home screen on error
-            LaunchedEffect(Unit) {
-                myPitchHomeNavController.navigate(MyHome.route)
+            Column(
+                modifier = Modifier
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(text = "Could not open pitch",
+                    fontSize = 18.sp,
+                    color = Color.DarkGray
+                )
+                Button(
+                    onClick = {
+                        myPitchHomeNavController.navigate(MyHome.route)
+                     },
+                    colors = ButtonDefaults.elevatedButtonColors(
+                        containerColor = teal,
+                        contentColor = Color.White
+                    ),
+                ) {
+                    Text(text = "Go back",
+                        fontSize = 16.sp)
+                }
             }
         }
     }

@@ -116,6 +116,7 @@ import com.devapps.mypitch.ui.utils.state.CreatePitchUiState
 import com.devapps.mypitch.ui.utils.state.GetPitchByIdUiState
 import com.devapps.mypitch.ui.viewmodels.PitchViewModel
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -289,7 +290,8 @@ fun MyPitchScreens(
                         },
                         label = {
                             Text(text = item.title,
-                                color = teal)
+                                color = teal
+                            )
                         },
                         icon = {
                             BadgedBox(
@@ -912,15 +914,20 @@ fun EditMyPitch(
                         }
 
                         CreatePitchUiState.Idle -> {} // Handle idle state
-                        else -> {}
                     }
                 }
             }
 
         }
         is GetPitchByIdUiState.Error -> {
-
+            LaunchedEffect(Unit) {
+                Toast.makeText(context, "Could not get pitch", Toast.LENGTH_SHORT).show()
+             delay(2000)
+                myPitchHomeNavController.navigate(MyPitches.route)
+            }
         }
+
+        else -> {}
     }
 }
 

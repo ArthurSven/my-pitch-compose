@@ -82,6 +82,7 @@ import com.devapps.mypitch.ui.theme.textGrey
 import com.devapps.mypitch.ui.utils.state.CreatePitchUiState
 import com.devapps.mypitch.ui.viewmodels.PitchViewModel
 import com.google.android.gms.auth.api.identity.Identity
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -316,8 +317,14 @@ fun PitchItem(
     pitch: PitchResponse,
     myPitchHomeNavController: NavController
 ) {
+    val context = LocalContext.current.applicationContext
+    val coroutineScope = rememberCoroutineScope()
     OutlinedCard(
         onClick = {
+            Toast.makeText(context, pitch.pitchid, Toast.LENGTH_LONG).show()
+            coroutineScope.launch {
+                delay(10000)
+            }
             myPitchHomeNavController.navigate(ReadPitch.route + "/${pitch.pitchid}")
         },
         modifier = Modifier
@@ -609,6 +616,7 @@ fun MyPitchList(
         }
 
         CreatePitchUiState.Idle -> {}
+        else -> {}
     }
 
     // Filter pitches based on the selected category

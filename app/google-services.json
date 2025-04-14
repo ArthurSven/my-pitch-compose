@@ -7,12 +7,57 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:301275452209:android:bcdfe10ce63e10bb81d610",
+        "android_client_info": {
+          "package_name": "com.devapps.justclass"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "301275452209-dj6jg85ohnrfv7vhb0ec9f39t12ak1np.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.devapps.justclass",
+            "certificate_hash": "3377a9deaa00f6865e0b6d372d7bbb6ec00763de"
+          }
+        },
+        {
+          "client_id": "301275452209-qj6gl2pjq91pn6pigllst22bnbrhuvt4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyClYaucegalyfxL0yXfcnLQF4VjkDigvjM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "301275452209-qj6gl2pjq91pn6pigllst22bnbrhuvt4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:301275452209:android:2f863de03e41263981d610",
         "android_client_info": {
           "package_name": "com.devapps.mypitch"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "301275452209-k2qlb7c99vtbk80fr89dabs16halpiav.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.devapps.mypitch",
+            "certificate_hash": "10131c402e93f14102f58f7cc3c64dea28059992"
+          }
+        },
         {
           "client_id": "301275452209-nrovjgqqvna1iv5el1o42pjkvrc66olb.apps.googleusercontent.com",
           "client_type": 1,
@@ -27,6 +72,14 @@
           "android_info": {
             "package_name": "com.devapps.mypitch",
             "certificate_hash": "3377a9deaa00f6865e0b6d372d7bbb6ec00763de"
+          }
+        },
+        {
+          "client_id": "301275452209-t6o3morfcorkfhbt5ldqschb11c84duh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.devapps.mypitch",
+            "certificate_hash": "1d0329999439d143009fe8819706e5521094b1d9"
           }
         },
         {

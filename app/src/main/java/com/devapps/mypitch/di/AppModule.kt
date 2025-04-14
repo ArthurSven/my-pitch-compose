@@ -5,11 +5,14 @@ import com.devapps.mypitch.Constants.API_KEY
 import com.devapps.mypitch.Constants.BASE_URL
 import com.devapps.mypitch.data.auth.GoogleAuthClient
 import com.devapps.mypitch.data.model.UserData
+import com.devapps.mypitch.data.repository.FirebasePitchRepository
 import com.devapps.mypitch.data.repository.PitchRepository
 import com.devapps.mypitch.data.repository.SupabaseRepository
 import com.devapps.mypitch.ui.viewmodels.AuthViewModel
 import com.devapps.mypitch.ui.viewmodels.PitchViewModel
 import com.google.android.gms.auth.api.identity.SignInClient
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreSettings
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
@@ -35,28 +38,44 @@ val appModule = module {
     }
 
 
-    //provide supabase client
-    single<SupabaseClient> {
-        createSupabaseClient(
-            BASE_URL,
-            API_KEY
-        ) {
-            install(Postgrest)
+//    //provide supabase client
+//    single<SupabaseClient> {
+//        createSupabaseClient(
+//            BASE_URL,
+//            API_KEY
+//        ) {
+//            install(Postgrest)
+//        }
+//    }
+    //firebase
+    single<FirebaseFirestore> {
+        FirebaseFirestore.getInstance().apply {
+            // Firestore-Einstellungen konfigurieren (optional)
+            firestoreSettings = FirebaseFirestoreSettings.Builder()
+                .setPersistenceEnabled(true)
+                .build()
         }
     }
 
-    //provide supabaseRepository
-    single {
-        SupabaseRepository(
-            supabaseClient = get()
-        )
+    single<PitchRepository> {
+        // Umschalten durch Ändern dieser Zeile:
+        FirebasePitchRepository(firestore = get())
+        // Oder für Supabase: SupabaseRepository(supabaseClient = get())
     }
+//    //provide supabaseRepository
+//    single {
+//        SupabaseRepository(
+//            supabaseClient = get()
+//        )
+//    }
 
-    single<PitchRepository> { // Bind SupabaseRepository to PitchRepository
-        SupabaseRepository(
-            supabaseClient = get()
-        )
-    }
+//    single<PitchRepository> { // Bind SupabaseRepository to PitchRepository
+//        SupabaseRepository(
+//            supabaseClient = get()
+//        )
+//    }
+
+
 
     // Provide AuthViewModel with a dynamic Context
     viewModel {

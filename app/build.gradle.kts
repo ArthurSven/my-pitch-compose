@@ -10,6 +10,14 @@ android {
     namespace = "com.devapps.mypitch"
     compileSdk = 34
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("C:/Users/asmsiska/Desktop/keystores/mypitchkeystore/mypitch.jks")
+            storePassword = (project.findProperty("KEYSTORE_PASSWORD") ?: "").toString()
+            keyAlias = "pitchit"
+            keyPassword = (project.findProperty("KEY_PASSWORD") ?: "").toString()
+        }
+    }
     defaultConfig {
         applicationId = "com.devapps.mypitch"
         minSdk = 26
@@ -21,10 +29,19 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        signingConfig = signingConfigs.getByName("release")
     }
 
     buildTypes {
         release {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+        debug {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -103,8 +120,12 @@ dependencies {
 
     //serializable
     implementation(libs.kotlinx.serialization.core)
+    implementation(libs.firebase.firestore.ktx)
 
     testImplementation(libs.junit)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.kotlin)
+    testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))

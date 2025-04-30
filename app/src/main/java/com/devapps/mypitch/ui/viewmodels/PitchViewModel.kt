@@ -185,5 +185,16 @@ class PitchViewModel(
             }
         }
     }
-    
+
+    fun resetState() {
+        viewModelScope.launch {
+            // Reset all UI states
+            _uiState.value = CreatePitchUiState.Idle
+
+            // Reset form fields if needed
+            pitchName = ""
+            pitchCategory = ""
+            description = ""
+        }
+    }
 }

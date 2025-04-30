@@ -1,6 +1,8 @@
 package com.devapps.mypitch.ui.screens
 
 import android.app.Activity.RESULT_OK
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import android.window.SplashScreen
 import androidx.activity.compose.BackHandler
@@ -101,6 +103,9 @@ fun SignupScreen(myPitchNavController: NavController) {
             oneTapClient = Identity.getSignInClient(context)
         )
     }
+
+    val termsUrl = "https://doc-hosting.flycricket.io/mypitch-terms-of-use/f390905b-448d-4e12-95b7-31aa1fcc58f0/terms"
+    val privacyPolicyUrl = "https://doc-hosting.flycricket.io/mypitch-privacy-policy/d16694df-95f6-4689-a2e5-ecd0c332ea9c/privacy"
 
     BackHandler {
         myPitchNavController.popBackStack(Signup.route, false)
@@ -219,8 +224,10 @@ fun SignupScreen(myPitchNavController: NavController) {
                             color = teal,
                             modifier = Modifier
                                 .clickable {
-                                    // Navigate to T&C screen or open a web page
-                                    Toast.makeText(context, "Opening Terms and Conditions", Toast.LENGTH_SHORT).show()
+                                    // Open the Ts & Cs URL in a web view
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(termsUrl))
+                                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                    context.startActivity(intent)
                                 }
                                 .padding(end = 8.dp)
                         )
@@ -242,8 +249,10 @@ fun SignupScreen(myPitchNavController: NavController) {
                             color = teal,
                             modifier = Modifier
                                 .clickable {
-                                    // Navigate to Privacy Policy screen or open a web page
-                                    Toast.makeText(context, "Opening Privacy Policy", Toast.LENGTH_SHORT).show()
+                                    // Open the privacy policy URL in a web view
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(privacyPolicyUrl))
+                                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                    context.startActivity(intent)
                                 }
                                 .padding(start = 8.dp)
                         )

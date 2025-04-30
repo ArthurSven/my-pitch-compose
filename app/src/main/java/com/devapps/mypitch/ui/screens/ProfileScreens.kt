@@ -1,5 +1,6 @@
 package com.devapps.mypitch.ui.screens
 
+import android.app.Activity
 import android.graphics.Bitmap
 import android.text.format.DateUtils.formatDateTime
 import android.util.Log
@@ -90,6 +91,7 @@ import coil3.request.ImageRequest
 import coil3.request.allowHardware
 import coil3.request.bitmapConfig
 import com.devapps.mypitch.R
+import com.devapps.mypitch.ReviewHelper
 import com.devapps.mypitch.data.model.Pitch
 import com.devapps.mypitch.data.model.UserData
 import com.devapps.mypitch.ui.CreatePitch
@@ -411,36 +413,36 @@ fun MyHomeScreen(
                 Spacer(modifier = Modifier
                     .height(20.dp)
                 )
-                OutlinedTextField(
-                    value = search,
-                    onValueChange = {
-                        search == it
-                    },
-                    leadingIcon = {
-                        Icon(
-                            Icons.Outlined.Search, contentDescription = "search", tint = Color.DarkGray
-                        )
-                    },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = feintGrey,
-                        unfocusedContainerColor = feintGrey,
-                        unfocusedTextColor = Color.Gray,
-                        focusedTextColor = Color.DarkGray,
-                        unfocusedBorderColor = Color.LightGray,
-                        focusedBorderColor = Color.LightGray
-                    ),
-                    shape = RoundedCornerShape(20.dp),
-                    placeholder = {
-                        Text("Search",
-                            fontSize = 14.sp)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(40.dp)
-                )
-                Spacer(modifier = Modifier
-                    .height(2.dp)
-                )
+//                OutlinedTextField(
+//                    value = search,
+//                    onValueChange = {
+//                        search == it
+//                    },
+//                    leadingIcon = {
+//                        Icon(
+//                            Icons.Outlined.Search, contentDescription = "search", tint = Color.DarkGray
+//                        )
+//                    },
+//                    colors = OutlinedTextFieldDefaults.colors(
+//                        focusedContainerColor = feintGrey,
+//                        unfocusedContainerColor = feintGrey,
+//                        unfocusedTextColor = Color.Gray,
+//                        focusedTextColor = Color.DarkGray,
+//                        unfocusedBorderColor = Color.LightGray,
+//                        focusedBorderColor = Color.LightGray
+//                    ),
+//                    shape = RoundedCornerShape(20.dp),
+//                    placeholder = {
+//                        Text("Search",
+//                            fontSize = 14.sp)
+//                    },
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .height(40.dp)
+//                )
+//                Spacer(modifier = Modifier
+//                    .height(2.dp)
+//                )
             }
             CategoryRow(
                 categoryList,
@@ -516,36 +518,36 @@ fun MyPitchListScreen(
                 Spacer(modifier = Modifier
                     .height(20.dp)
                 )
-                OutlinedTextField(
-                    value = search,
-                    onValueChange = {
-                        search == it
-                    },
-                    leadingIcon = {
-                        Icon(
-                            Icons.Outlined.Search, contentDescription = "search", tint = Color.DarkGray
-                        )
-                    },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = feintGrey,
-                        unfocusedContainerColor = feintGrey,
-                        unfocusedTextColor = Color.Gray,
-                        focusedTextColor = Color.DarkGray,
-                        unfocusedBorderColor = Color.LightGray,
-                        focusedBorderColor = Color.LightGray
-                    ),
-                    shape = RoundedCornerShape(20.dp),
-                    placeholder = {
-                        Text("Search",
-                            fontSize = 14.sp)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(40.dp)
-                )
-                Spacer(modifier = Modifier
-                    .height(2.dp)
-                )
+//                OutlinedTextField(
+//                    value = search,
+//                    onValueChange = {
+//                        search == it
+//                    },
+//                    leadingIcon = {
+//                        Icon(
+//                            Icons.Outlined.Search, contentDescription = "search", tint = Color.DarkGray
+//                        )
+//                    },
+//                    colors = OutlinedTextFieldDefaults.colors(
+//                        focusedContainerColor = feintGrey,
+//                        unfocusedContainerColor = feintGrey,
+//                        unfocusedTextColor = Color.Gray,
+//                        focusedTextColor = Color.DarkGray,
+//                        unfocusedBorderColor = Color.LightGray,
+//                        focusedBorderColor = Color.LightGray
+//                    ),
+//                    shape = RoundedCornerShape(20.dp),
+//                    placeholder = {
+//                        Text("Search",
+//                            fontSize = 14.sp)
+//                    },
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .height(40.dp)
+//                )
+//                Spacer(modifier = Modifier
+//                    .height(2.dp)
+//                )
             }
             CategoryRow(
                 categoryList,
@@ -711,7 +713,6 @@ fun CreateMyPitch(userData: UserData?) {
                     pitchViewModel.updatePitchName("")
                     pitchViewModel.updatePitchCategory("")
                     pitchViewModel.updateDescription("")
-
                 }
 
                 is CreatePitchUiState.Error -> {
@@ -726,6 +727,14 @@ fun CreateMyPitch(userData: UserData?) {
 
                 CreatePitchUiState.Idle -> {} // Handle idle state
                 else -> {}
+            }
+
+            LaunchedEffect(uiState) {
+                if (uiState is CreatePitchUiState.Success) {
+                    delay(1000) // Let success toast appear
+                    ReviewHelper(context as Activity).requestReview()
+                    pitchViewModel.resetState() // Reset to avoid duplicate triggers
+                }
             }
         }
     }

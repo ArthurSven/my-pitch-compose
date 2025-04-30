@@ -321,10 +321,6 @@ fun PitchItem(
     val coroutineScope = rememberCoroutineScope()
     OutlinedCard(
         onClick = {
-            Toast.makeText(context, pitch.pitchid, Toast.LENGTH_LONG).show()
-            coroutineScope.launch {
-                delay(10000)
-            }
             myPitchHomeNavController.navigate(ReadPitch.route + "/${pitch.pitchid}")
         },
         modifier = Modifier

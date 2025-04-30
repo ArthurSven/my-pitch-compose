@@ -19,3 +19,31 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Base Google Play Services rules
+-keep class com.google.android.gms.** { *; }
+-keep interface com.google.android.gms.** { *; }
+
+# Play Core specific rules
+-keep class com.google.android.play.core.** { *; }
+-keep interface com.google.android.play.core.** { *; }
+
+# Kotlin coroutines support for KTX
+-keep class kotlinx.coroutines.android.** { *; }
+
+# Annotation support
+-keepattributes *Annotation*
+-keep class * extends java.lang.annotation.Annotation { *; }
+
+# For newer Play Core versions
+-keep class com.google.android.play.core.ktx.** { *; }
+-keep class com.google.android.play.core.tasks.** { *; }
+
+# If using internal GMS annotations
+-keep class com.google.android.gms.common.internal.** { *; }
+
+# This is generated automatically by the Android Gradle plugin.
+-dontwarn com.google.android.gms.common.annotation.NoNullnessRewrite
+
+# This is generated automatically by the Android Gradle plugin.
+-dontwarn com.google.android.gms.common.annotation.NoNullnessRewrite

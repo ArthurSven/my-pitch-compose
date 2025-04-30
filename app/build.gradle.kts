@@ -22,8 +22,8 @@ android {
         applicationId = "com.devapps.mypitch"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -121,6 +121,10 @@ dependencies {
     //serializable
     implementation(libs.kotlinx.serialization.core)
     implementation(libs.firebase.firestore.ktx)
+
+    //google review api
+    implementation(libs.review)
+    implementation(libs.review.ktx)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockito.core)

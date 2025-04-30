@@ -1,5 +1,6 @@
 package com.devapps.mypitch.ui.screens
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
@@ -10,6 +11,7 @@ import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,8 +37,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -51,10 +55,14 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavController
 import com.devapps.mypitch.R
+import com.devapps.mypitch.ReviewHelper
 import com.devapps.mypitch.ui.MyHome
 import com.devapps.mypitch.ui.theme.teal
 import com.devapps.mypitch.ui.utils.state.GetPitchByIdUiState
 import com.devapps.mypitch.ui.viewmodels.PitchViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -72,6 +80,19 @@ fun ReadPitchScreen(
         Log.d("ReadPitchScreen", "Fetching pitch with ID: $pitchid")
         pitchViewModel.getPitchById(pitchid)
     }
+
+    val activity = context as Activity
+    var emailSent by remember { mutableStateOf(false) }
+
+    // Trigger review after email
+    LaunchedEffect(emailSent) {
+        if (emailSent) {
+            delay(500) // Let email app open first
+            ReviewHelper(activity).requestReview()
+            emailSent = false
+        }
+    }
+
 
 
     when (pitchState) {
@@ -141,6 +162,7 @@ fun ReadPitchScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(20.dp)
+                        .height(IntrinsicSize.Max)
                 ) {
                     Spacer(modifier = Modifier.height(30.dp))
                     Text(
@@ -168,7 +190,15 @@ fun ReadPitchScreen(
                             }
 
                             try {
-                                ContextCompat.startActivity(context, Intent.createChooser(intent, "Choose an email client"), null)
+                                ContextCompat.startActivity(
+                                    context,
+                                    Intent.createChooser(intent, "Choose an email client"),
+                                    null
+                                )
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    delay(500) // Wait for email app to appear
+                                    ReviewHelper(context as Activity).requestReview()
+                                }
                             } catch (e: Exception) {
                                 Log.e("Msg", e.message.toString())
                                 Toast.makeText(context, "No email app found",
@@ -199,6 +229,7 @@ fun ReadPitchScreen(
             // Navigate back to the home screen on error
             Column(
                 modifier = Modifier
+                    .background(Color.White)
                     .fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -206,6 +237,9 @@ fun ReadPitchScreen(
                 Text(text = "Could not open pitch",
                     fontSize = 18.sp,
                     color = Color.DarkGray
+                )
+                Spacer(modifier = Modifier
+                    .height(20.dp)
                 )
                 Button(
                     onClick = {

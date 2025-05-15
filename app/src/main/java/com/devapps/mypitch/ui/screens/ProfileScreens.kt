@@ -1,7 +1,10 @@
 package com.devapps.mypitch.ui.screens
 
+import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Intent
 import android.graphics.Bitmap
+import android.net.Uri
 import android.text.format.DateUtils.formatDateTime
 import android.util.Log
 import android.widget.Toast
@@ -31,12 +34,14 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Create
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material.icons.outlined.Logout
+import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
@@ -80,6 +85,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEachIndexed
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -94,6 +100,7 @@ import com.devapps.mypitch.R
 import com.devapps.mypitch.ReviewHelper
 import com.devapps.mypitch.data.model.Pitch
 import com.devapps.mypitch.data.model.UserData
+import com.devapps.mypitch.ui.Contact
 import com.devapps.mypitch.ui.CreatePitch
 import com.devapps.mypitch.ui.EditPitch
 import com.devapps.mypitch.ui.MyHome
@@ -116,7 +123,10 @@ import com.devapps.mypitch.ui.utils.formCategoryList
 import com.devapps.mypitch.ui.utils.messageArray
 import com.devapps.mypitch.ui.utils.state.CreatePitchUiState
 import com.devapps.mypitch.ui.utils.state.GetPitchByIdUiState
+import com.devapps.mypitch.ui.viewmodels.MyPitchViewModel
 import com.devapps.mypitch.ui.viewmodels.PitchViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -155,6 +165,12 @@ fun MyPitchScreens(
             selectedIcon = Icons.Filled.Lightbulb,
             unselectedIcon = Icons.Outlined.Lightbulb,
             route = MyPitches.route
+        ),
+        BottomNavItem(
+            title = "Contact",
+            selectedIcon = Icons.Filled.Phone,
+            unselectedIcon = Icons.Outlined.Phone,
+            route = Contact.route
         ),
     )
 
@@ -333,7 +349,10 @@ fun MyPitchScreens(
               MyPitchListScreen(userData, myPitchHomeNavController)
             }
           composable(CreatePitch.route) {
-              CreateMyPitch(userData)
+              CreateMyPitch(
+                  userData,
+                  myPitchHomeNavController
+              )
           }
           composable(ReadPitch.route+"/{pitchid}",
               arguments = listOf(navArgument("pitchid") { type = NavType.StringType }))
@@ -364,6 +383,9 @@ fun MyPitchScreens(
                   )
               }
 
+          }
+          composable(Contact.route) {
+              ContactPage()
           }
       }
     }
@@ -486,7 +508,7 @@ fun MyPitchListScreen(
     }
 
     var selectedCategory by rememberSaveable { mutableStateOf(0) }
-    val pitchViewModel: PitchViewModel = koinViewModel { parametersOf(userData) }
+    val myPitchViewModel: MyPitchViewModel = koinViewModel { parametersOf(userData) }
 
     Surface(
         color = Color.White
@@ -566,7 +588,7 @@ fun MyPitchListScreen(
                     modifier = Modifier
                         .height(10.dp)
                 )
-                MyPitchList(pitchViewModel,
+                MyPitchList(myPitchViewModel,
                     myPitchHomeNavController,
                     selectedCategory
                 )
@@ -579,7 +601,10 @@ fun MyPitchListScreen(
 
 
 @Composable
-fun CreateMyPitch(userData: UserData?) {
+fun CreateMyPitch(
+    userData: UserData?,
+    myPitchHomeNavController: NavController
+) {
 
     val pitchViewModel: PitchViewModel = koinViewModel { parametersOf(userData) }
     val uiState by pitchViewModel.uiState.collectAsState()
@@ -709,10 +734,13 @@ fun CreateMyPitch(userData: UserData?) {
 
                 CreatePitchUiState.Success -> {
                     Toast.makeText(context, "Pitch successfully created", Toast.LENGTH_LONG).show()
+                    myPitchHomeNavController.navigate(MyPitches.route)
                     // Optionally navigate or reset the form here
                     pitchViewModel.updatePitchName("")
                     pitchViewModel.updatePitchCategory("")
                     pitchViewModel.updateDescription("")
+
+                    pitchViewModel.resetState()
                 }
 
                 is CreatePitchUiState.Error -> {
@@ -727,14 +755,6 @@ fun CreateMyPitch(userData: UserData?) {
 
                 CreatePitchUiState.Idle -> {} // Handle idle state
                 else -> {}
-            }
-
-            LaunchedEffect(uiState) {
-                if (uiState is CreatePitchUiState.Success) {
-                    delay(1000) // Let success toast appear
-                    ReviewHelper(context as Activity).requestReview()
-                    pitchViewModel.resetState() // Reset to avoid duplicate triggers
-                }
             }
         }
     }
@@ -940,8 +960,105 @@ fun EditMyPitch(
     }
 }
 
+@SuppressLint("SuspiciousIndentation")
+@Composable
+fun ContactPage() {
+    val context = LocalContext.current.applicationContext
+    
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.White)
+                    .padding(10.dp)
+            ) {
+                Spacer(modifier = Modifier
+                    .height(20.dp)
+                )
+                Text(text = "Contact Us",
+                    color = teal,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
+                Spacer(modifier = Modifier
+                    .height(30.dp)
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    Icon(imageVector = Icons.Filled.Email,
+                        contentDescription = "email",
+                        tint = teal
+                    )
+                    Spacer(modifier = Modifier
+                        .width(20.dp)
+                    )
+                    Text("mvundomsiska13@gmail.com",
+                        color = Color.DarkGray,
+                        fontSize = 18.sp,
+                        modifier = Modifier
+                            .clickable {
+                                // Handle email pitcher button click
+                                val body = Uri.encode("Dear DevApps team,") // Encode the body
+
+                                val uri = Uri.parse("mailto:mvundomsiska13@gmail.com")
+
+                                val intent = Intent(Intent.ACTION_SENDTO).apply {
+                                    data = uri
+                                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                }
+
+                                try {
+                                    ContextCompat.startActivity(
+                                        context,
+                                        Intent.createChooser(intent, "Choose an email client"),
+                                        null
+                                    )
+                                    (context as? Activity)?.let {
+                                        CoroutineScope(Dispatchers.Main).launch {
+                                            delay(500)
+                                            ReviewHelper(it).requestReview()
+                                        }
+                                    }
+                                } catch (e: Exception) {
+                                    Log.e("Msg", e.message.toString())
+                                    Toast.makeText(context, "No email app found",
+                                        Toast.LENGTH_LONG).show()
+                                }
+                            }
+                    )
+                }
+                Spacer(modifier = Modifier
+                    .height(10.dp)
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    Icon(imageVector = Icons.Filled.Phone,
+                        contentDescription = "Phone",
+                        tint = teal
+                    )
+                    Spacer(modifier = Modifier
+                        .width(20.dp)
+                    )
+                    Text("+265 991 142 455",
+                        color = Color.DarkGray,
+                        fontSize = 18.sp)
+                }
+            }
+        }
+
+}
+
 @Composable
 @Preview(showBackground = true)
 fun ViewProfileScreens() {
-
 }

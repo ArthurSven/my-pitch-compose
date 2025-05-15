@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.google.gms.google.services)
     alias(libs.plugins.compose.compiler)
     kotlin("plugin.serialization") version "1.9.0"
+    alias(libs.plugins.google.firebase.crashlytics)
 }
 
 android {
@@ -22,8 +23,8 @@ android {
         applicationId = "com.devapps.mypitch"
         minSdk = 26
         targetSdk = 34
-        versionCode = 2
-        versionName = "1.0.1"
+        versionCode = 5
+        versionName = "1.0.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -125,6 +126,7 @@ dependencies {
     //google review api
     implementation(libs.review)
     implementation(libs.review.ktx)
+    implementation(libs.firebase.crashlytics)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockito.core)

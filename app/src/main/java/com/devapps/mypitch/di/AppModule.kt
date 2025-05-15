@@ -9,6 +9,7 @@ import com.devapps.mypitch.data.repository.FirebasePitchRepository
 import com.devapps.mypitch.data.repository.PitchRepository
 import com.devapps.mypitch.data.repository.SupabaseRepository
 import com.devapps.mypitch.ui.viewmodels.AuthViewModel
+import com.devapps.mypitch.ui.viewmodels.MyPitchViewModel
 import com.devapps.mypitch.ui.viewmodels.PitchViewModel
 import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.firebase.firestore.FirebaseFirestore
@@ -86,6 +87,13 @@ val appModule = module {
 
     viewModel { (userData: UserData) ->
         PitchViewModel(
+            pitchRepository = get(),
+            userData = userData
+        )
+    }
+
+    viewModel { (userData: UserData) ->
+        MyPitchViewModel(
             pitchRepository = get(),
             userData = userData
         )

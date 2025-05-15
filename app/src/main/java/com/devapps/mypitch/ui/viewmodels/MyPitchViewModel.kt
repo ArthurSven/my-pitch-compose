@@ -23,7 +23,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
 
-class PitchViewModel(
+class MyPitchViewModel(
     private val pitchRepository: PitchRepository,
     private val userData: UserData
 ) : ViewModel() {
@@ -45,7 +45,7 @@ class PitchViewModel(
 
     init {
         viewModelScope.launch {
-            getPitches()
+            getPitchesByUserId(_createdBy.value)
         }
     }
 
@@ -78,34 +78,6 @@ class PitchViewModel(
 
     fun updateDescription(input: String) {
         description = input
-    }
-
-
-    suspend fun createPitch() {
-
-        try {
-            val currentDate = Clock.System.todayIn(TimeZone.currentSystemDefault()).toString()
-
-            _uiState.value = CreatePitchUiState.Loading
-            val pitch = Pitch(
-                pitchname = pitchName,
-                category = pitchCategory,
-                description = description,
-                google_id = userData.userId,
-                username = userData.username,
-                email = userData.email
-            )
-
-            val result = pitchRepository.createPitch(pitch)
-
-            when (result) {
-                is Response.Success -> _uiState.value = CreatePitchUiState.Success
-                is Response.Error -> _uiState.value = CreatePitchUiState.Error((result.error ?: "Failed to create pitch.").toString())
-                else -> {}
-            }
-        } catch (e: Exception) {
-            _uiState.value = CreatePitchUiState.Error("Error creating pitch data: ${e.message}")
-        }
     }
 
     suspend fun getPitches() {
@@ -149,31 +121,20 @@ class PitchViewModel(
         }
     }
 
-    suspend fun updatePitch(pitch: Pitch, pitchid: String) {
-        try {
-            _uiState.value = CreatePitchUiState.Loading
-            val result = pitchRepository.updatePitch(pitch,pitchid)
+    suspend fun deletePitch(pitchid: String) {
+        val result = pitchRepository.deletePitch(pitchid)
 
-            when (result) {
-                is  Response.Success -> {
-                    _uiState.value = CreatePitchUiState.Success
-                    // Refetch the pitch data to update the UI
-                    getPitchById(pitchid)
-                    viewModelScope.launch {
-                        delay(2000) // Optional: Add a small delay to show the success message
-                        _uiState.value = CreatePitchUiState.Idle
-                    }
-                }
-                is Response.Error -> {
-                    _uiState.value = CreatePitchUiState.Error((result.error ?: "Failed to create pitch.").toString())
-                }
-
-                else -> {}
+        when(result) {
+            is Response.Success -> {
+                _uiState.value = CreatePitchUiState.Success
             }
-        } catch (e: Exception) {
-            _uiState.value = CreatePitchUiState.Error("Error creating pitch data: ${e.message}")
-        }
 
+            is Response.Error -> {
+                _uiState.value = CreatePitchUiState.Error("Error: " + result.error)
+            }
+
+            else -> {}
+        }
     }
 
     fun resetState() {

@@ -963,99 +963,79 @@ fun EditMyPitch(
 @SuppressLint("SuspiciousIndentation")
 @Composable
 fun ContactPage() {
-    val context = LocalContext.current.applicationContext
-    
+    val context = LocalContext.current  // Use current context instead of applicationContext
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.White)
+                .padding(10.dp)
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.White)
-                    .padding(10.dp)
-            ) {
-                Spacer(modifier = Modifier
-                    .height(20.dp)
+            Spacer(modifier = Modifier.height(20.dp))
+            Text(
+                text = "Contact Us",
+                color = teal,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(30.dp))
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Icon(
+                    imageVector = Icons.Filled.Email,
+                    contentDescription = "email",
+                    tint = teal
                 )
-                Text(text = "Contact Us",
-                    color = teal,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                )
-                Spacer(modifier = Modifier
-                    .height(30.dp)
-                )
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    Icon(imageVector = Icons.Filled.Email,
-                        contentDescription = "email",
-                        tint = teal
-                    )
-                    Spacer(modifier = Modifier
-                        .width(20.dp)
-                    )
-                    Text("mvundomsiska13@gmail.com",
-                        color = Color.DarkGray,
-                        fontSize = 18.sp,
-                        modifier = Modifier
-                            .clickable {
-                                // Handle email pitcher button click
-                                val body = Uri.encode("Dear DevApps team,") // Encode the body
+                Spacer(modifier = Modifier.width(20.dp))
+                Text(
+                    "mvundomsiska13@gmail.com",
+                    color = Color.DarkGray,
+                    fontSize = 18.sp,
+                    modifier = Modifier.clickable {
+                        val body = Uri.encode("Dear DevApps team,")
+                        val uri = Uri.parse("mailto:mvundomsiska13@gmail.com")
 
-                                val uri = Uri.parse("mailto:mvundomsiska13@gmail.com")
+                        val intent = Intent(Intent.ACTION_SENDTO).apply {
+                            data = uri
+                            // No need for FLAG_ACTIVITY_NEW_TASK when using Activity context
+                        }
 
-                                val intent = Intent(Intent.ACTION_SENDTO).apply {
-                                    data = uri
-                                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                }
-
-                                try {
-                                    ContextCompat.startActivity(
-                                        context,
-                                        Intent.createChooser(intent, "Choose an email client"),
-                                        null
-                                    )
-                                    (context as? Activity)?.let {
-                                        CoroutineScope(Dispatchers.Main).launch {
-                                            delay(500)
-                                            ReviewHelper(it).requestReview()
-                                        }
-                                    }
-                                } catch (e: Exception) {
-                                    Log.e("Msg", e.message.toString())
-                                    Toast.makeText(context, "No email app found",
-                                        Toast.LENGTH_LONG).show()
-                                }
+                        try {
+                            context.startActivity(
+                                Intent.createChooser(intent, "Choose an email client")
+                            )
+                            CoroutineScope(Dispatchers.Main).launch {
+                                delay(500)
+                                ReviewHelper(context as Activity).requestReview()
                             }
-                    )
-                }
-                Spacer(modifier = Modifier
-                    .height(10.dp)
+                        } catch (e: Exception) {
+                            Log.e("Msg", e.message.toString())
+                            Toast.makeText(context, "No email app found", Toast.LENGTH_LONG).show()
+                        }
+                    }
                 )
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    Icon(imageVector = Icons.Filled.Phone,
-                        contentDescription = "Phone",
-                        tint = teal
-                    )
-                    Spacer(modifier = Modifier
-                        .width(20.dp)
-                    )
-                    Text("+265 991 142 455",
-                        color = Color.DarkGray,
-                        fontSize = 18.sp)
-                }
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Icon(
+                    imageVector = Icons.Filled.Phone,
+                    contentDescription = "Phone",
+                    tint = teal
+                )
+                Spacer(modifier = Modifier.width(20.dp))
+                Text(
+                    "+265 991 142 455",
+                    color = Color.DarkGray,
+                    fontSize = 18.sp
+                )
             }
         }
-
+    }
 }
 
 @Composable

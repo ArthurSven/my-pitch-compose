@@ -123,7 +123,6 @@ import com.devapps.mypitch.ui.utils.formCategoryList
 import com.devapps.mypitch.ui.utils.messageArray
 import com.devapps.mypitch.ui.utils.state.CreatePitchUiState
 import com.devapps.mypitch.ui.utils.state.GetPitchByIdUiState
-import com.devapps.mypitch.ui.viewmodels.MyPitchViewModel
 import com.devapps.mypitch.ui.viewmodels.PitchViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -508,7 +507,7 @@ fun MyPitchListScreen(
     }
 
     var selectedCategory by rememberSaveable { mutableStateOf(0) }
-    val myPitchViewModel: MyPitchViewModel = koinViewModel { parametersOf(userData) }
+    val pitchViewModel: PitchViewModel = koinViewModel { parametersOf(userData) }
 
     Surface(
         color = Color.White
@@ -588,7 +587,7 @@ fun MyPitchListScreen(
                     modifier = Modifier
                         .height(10.dp)
                 )
-                MyPitchList(myPitchViewModel,
+                MyPitchList(pitchViewModel,
                     myPitchHomeNavController,
                     selectedCategory
                 )

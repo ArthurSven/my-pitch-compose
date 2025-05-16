@@ -18,7 +18,7 @@ interface PitchRepository {
 
     suspend fun getPitchesByUserId(userid: String) : List<PitchResponse>
 
-    suspend fun deletePitch(pitchid: String): Response
+    suspend fun deletePitch(pitchid: String, currentUserId: String?): Response
 
     suspend fun updatePitch(pitch: Pitch, pitchid: String) : Response
 }
@@ -97,7 +97,7 @@ class SupabaseRepository(private val supabaseClient: SupabaseClient) : PitchRepo
     }
 
 
-    override suspend fun deletePitch(pitchid: String): Response {
+    override suspend fun deletePitch(pitchid: String, currentUserId: String?): Response {
         return try {
             // Delete the pitch with the given pitchid
             supabaseClient.postgrest["pitch"]

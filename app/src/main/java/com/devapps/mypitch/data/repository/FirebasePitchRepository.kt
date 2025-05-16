@@ -108,8 +108,15 @@ class FirebasePitchRepository(firestore: FirebaseFirestore) : PitchRepository {
         }
     }
 
-    override suspend fun deletePitch(pitchid: String): Response {
+    override suspend fun deletePitch(pitchid: String, currentUserId: String?): Response {
         return try {
+
+            val pitch = pitchCollection.document(pitchid).get().await()
+            val pitchOwnerId = pitch.getString("google_id") ?: ""
+
+            if (pitchOwnerId != currentUserId) {
+                return Response.Error(Exception("You can only delete your own pitches"))
+            }
             pitchCollection.document(pitchid).delete().await()
             Response.Success
         } catch (e: Exception) {

@@ -25,7 +25,7 @@ import kotlinx.datetime.todayIn
 
 class PitchViewModel(
     private val pitchRepository: PitchRepository,
-    private val userData: UserData
+    val userData: UserData
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<CreatePitchUiState>(CreatePitchUiState.Idle)
@@ -33,6 +33,9 @@ class PitchViewModel(
 
     private val _pitches = MutableStateFlow<List<PitchResponse>>(emptyList())
     val pitches : StateFlow<List<PitchResponse>> = _pitches.asStateFlow()
+
+    private val _userPitches = MutableStateFlow<List<PitchResponse>>(emptyList())
+    val userPitches: StateFlow<List<PitchResponse>> = _userPitches.asStateFlow()
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
@@ -45,7 +48,7 @@ class PitchViewModel(
 
     init {
         viewModelScope.launch {
-            getPitches()
+            loadInitialData()
         }
     }
 
@@ -80,6 +83,15 @@ class PitchViewModel(
         description = input
     }
 
+    private suspend fun loadInitialData() {
+        try {
+            _isLoading.value = true
+            userData.userId?.let { getPitchesByUserId(it) }
+        } finally {
+            _isLoading.value = false
+        }
+    }
+
 
     suspend fun createPitch() {
 
@@ -99,7 +111,12 @@ class PitchViewModel(
             val result = pitchRepository.createPitch(pitch)
 
             when (result) {
-                is Response.Success -> _uiState.value = CreatePitchUiState.Success
+                is Response.Success ->{
+                    getPitches()
+                    _uiState.value = CreatePitchUiState.Success
+
+
+                }
                 is Response.Error -> _uiState.value = CreatePitchUiState.Error((result.error ?: "Failed to create pitch.").toString())
                 else -> {}
             }
@@ -123,8 +140,8 @@ class PitchViewModel(
     suspend fun getPitchesByUserId(userid: String) {
         try {
             _isLoading.value = true
-            val findPitches = pitchRepository.getPitchesByUserId(userid)
-            _pitches.value = findPitches
+            val findUserPitches = pitchRepository.getPitchesByUserId(userid)
+            _userPitches.value = findUserPitches
         } catch (e: Exception) {
             _uiState.value = CreatePitchUiState.Error("Error fetching your pitches: ${e.message}")
         } finally {
@@ -174,6 +191,22 @@ class PitchViewModel(
             _uiState.value = CreatePitchUiState.Error("Error creating pitch data: ${e.message}")
         }
 
+    }
+
+    suspend fun deletePitch(pitchid: String, curentUserId: String?) {
+        val result = pitchRepository.deletePitch(pitchid, curentUserId)
+
+        when(result) {
+            is Response.Success -> {
+                _uiState.value = CreatePitchUiState.Success
+            }
+
+            is Response.Error -> {
+                _uiState.value = CreatePitchUiState.Error("Error: " + result.error)
+            }
+
+            else -> {}
+        }
     }
 
     fun resetState() {

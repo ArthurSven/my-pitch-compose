@@ -80,7 +80,6 @@ import com.devapps.mypitch.ui.theme.feintGrey
 import com.devapps.mypitch.ui.theme.teal
 import com.devapps.mypitch.ui.theme.textGrey
 import com.devapps.mypitch.ui.utils.state.CreatePitchUiState
-import com.devapps.mypitch.ui.viewmodels.MyPitchViewModel
 import com.devapps.mypitch.ui.viewmodels.PitchViewModel
 import com.google.android.gms.auth.api.identity.Identity
 import kotlinx.coroutines.delay
@@ -389,9 +388,15 @@ fun PitchList(
     myPitchHomeNavController: NavController,
     selectedCategory: Int) {
 
+
+    LaunchedEffect(Unit) {
+        pitchViewModel.getPitches()
+    }
     val pitches by pitchViewModel.pitches.collectAsState()
     val isLoading by pitchViewModel.isLoading.collectAsState()
 
+    val refreshScope = rememberCoroutineScope()
+    var isRefreshing by remember { mutableStateOf(false) }
 
     // Filter pitches based on the selected category
     val filteredPitches = remember(pitches, selectedCategory) {
@@ -555,16 +560,16 @@ fun MyPitchItem(
 
 @Composable
 fun MyPitchList(
-   myPitchViewModel: MyPitchViewModel,
+   pitchViewModel: PitchViewModel,
     myPitchHomeNavController: NavController,
     selectedCategory: Int) {
 
-    val uiState by myPitchViewModel.uiState.collectAsState()
+    val uiState by pitchViewModel.uiState.collectAsState()
     var pitchToDelete by remember { mutableStateOf<PitchResponse?>(null) }
     val showDeleteDialog = remember { mutableStateOf(false) }
 
-    val pitches by myPitchViewModel.pitches.collectAsState()
-    val isLoading by myPitchViewModel.isLoading.collectAsState()
+    val pitches by pitchViewModel.userPitches.collectAsState()
+    val isLoading by pitchViewModel.isLoading.collectAsState()
 
     val context = LocalContext.current.applicationContext
     val coroutineScope = rememberCoroutineScope()
@@ -575,12 +580,12 @@ fun MyPitchList(
             oneTapClient = Identity.getSignInClient(context)
         )
     }
-
+    val currentUserId = pitchViewModel.userData.userId
     val userId = googleClientAuth.getSignedInUser()?.userId
     LaunchedEffect(userId) {
         if (userId != null) {
-            myPitchViewModel.setCreatedBy(userId)
-            myPitchViewModel.getPitchesByUserId(userId)
+            pitchViewModel.setCreatedBy(userId)
+            pitchViewModel.getPitchesByUserId(userId)
         }
     }
 
@@ -658,7 +663,7 @@ fun MyPitchList(
                                 onClick = {
                                     pitchToDelete?.let { pitch ->
                                         coroutineScope.launch {
-                                            myPitchViewModel.deletePitch(pitch.pitchid)
+                                            pitchViewModel.deletePitch(pitch.pitchid, currentUserId)
                                             pitchToDelete = null
                                         }
                                     }
